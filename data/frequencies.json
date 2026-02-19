@@ -1,0 +1,68 @@
+{
+  "samples": [
+    {
+      "id": 1,
+      "name": "דו (C)",
+      "frequency": 262,
+      "category": "note"
+    },
+    {
+      "id": 2,
+      "name": "רה (D)",
+      "frequency": 294,
+      "category": "note"
+    },
+    {
+      "id": 3,
+      "name": "מי (E)",
+      "frequency": 330,
+      "category": "note"
+    },
+    {
+      "id": 4,
+      "name": "פה (F)",
+      "frequency": 349,
+      "category": "note"
+    },
+    {
+      "id": 5,
+      "name": "סול (G)",
+      "frequency": 392,
+      "category": "note"
+    },
+    {
+      "id": 6,
+      "name": "לה (A)",
+      "frequency": 440,
+      "category": "note"
+    },
+    {
+      "id": 7,
+      "name": "סי (B)",
+      "frequency": 494,
+      "category": "note"
+    },
+    {
+      "id": 8,
+      "name": "משפחה נמוכה",
+      "frequency": 50,
+      "category": "freq"
+    },
+    {
+      "id": 9,
+      "name": "משפחה בינונית",
+      "frequency": 500,
+      "category": "freq"
+    },
+    {
+      "id": 10,
+      "name": "משפחה גבוהה",
+      "frequency": 2000,
+      "category": "freq"
+    }
+  ],
+  "categoryNames": {
+    "note": "תווים מוזיקליים",
+    "freq": "תדרים מיוחדים"
+  }
+}

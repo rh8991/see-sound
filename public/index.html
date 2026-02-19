@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>לראות את הקול</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <h1>לראות את הקול</h1>
+        <p class="subtitle">מעבדה אינטראקטיבית לחקר תדרי אודיו</p>
+      </header>
+
+      <!-- Main Layout: Two Columns -->
+      <div class="dual-layout">
+        <!-- LEFT COLUMN: Waveform Visualization -->
+        <div class="visualization-panel">
+          <h2>ויזואליזציה של הגל</h2>
+          <canvas id="waveformCanvas" class="waveform-canvas"></canvas>
+          <div class="canvas-info">
+            <div class="info-item">
+              <span class="info-label">זמן:</span>
+              <span class="info-value"
+                ><span id="timeDisplay">0.00</span> ש׳</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">תדר:</span>
+              <span class="info-value"
+                ><span id="vizFreqDisplay">440</span> Hz</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Controls & Frequency Selection -->
+        <div class="controls-panel">
+          <!-- Tab Navigation -->
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="notes">🎹 תווים</button>
+            <button class="tab-btn" data-tab="custom">⚙️ התאמה</button>
+            <button class="tab-btn" data-tab="bluetooth">📡 בלוטוס</button>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="tabs-content">
+            <!-- Notes Tab -->
+            <div class="tab-pane active" id="notes-tab">
+              <!-- Category Tabs -->
+              <div class="category-tabs">
+                <button class="category-btn active" data-category="note">
+                  תווים מוזיקליים
+                </button>
+                <button class="category-btn" data-category="freq">
+                  תדרים מיוחדים
+                </button>
+              </div>
+
+              <!-- Sample Notes Container -->
+              <div id="samplesContainer">
+                <!-- Samples will be loaded here -->
+              </div>
+            </div>
+
+            <!-- Custom Frequency Tab -->
+            <div class="tab-pane" id="custom-tab">
+              <!-- Frequency Slider -->
+              <div class="custom-frequency-control">
+                <label for="customFreq">תדר (Hz)</label>
+                <div class="slider-wrapper">
+                  <input
+                    type="range"
+                    id="customFreq"
+                    min="20"
+                    max="20000"
+                    value="440"
+                    class="frequency-slider"
+                  />
+                </div>
+                <div class="value-display">
+                  <input
+                    type="number"
+                    id="customFreqInput"
+                    min="20"
+                    max="20000"
+                    value="440"
+                    class="frequency-input"
+                  />
+                  <span id="freqDisplay" class="freq-display">440 Hz</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bluetooth Tab -->
+            <div class="tab-pane" id="bluetooth-tab">
+              <div class="bluetooth-control">
+                <div class="bluetooth-status">
+                  <span id="bluetoothStatusIcon">📡</span>
+                  <span id="bluetoothStatusText">לא מחובר</span>
+                </div>
+
+                <button id="scanBluetoothBtn" class="btn btn-primary" style="margin-bottom: 10px; width: 100%;">
+                  🔍 סריקה
+                </button>
+
+                <div id="bluetoothDevicesList" class="bluetooth-devices-list">
+                  <p style="text-align: center; color: #999; padding: 15px;">אין התקנים זמינים</p>
+                </div>
+
+                <div id="connectedDeviceInfo" class="connected-device-info" style="display: none;">
+                  <h4>מחובר ל:</h4>
+                  <div class="device-details">
+                    <strong id="connectedDeviceName"></strong>
+                    <small id="connectedDeviceTime"></small>
+                  </div>
+                  <button id="disconnectBluetoothBtn" class="btn btn-stop" style="width: 100%; margin-top: 10px;">
+                    ⏻️ נתק
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Volume Slider -->
+          <div class="custom-frequency-control">
+            <label for="volumeSlider">עוצמת קול</label>
+            <div class="slider-wrapper">
+              <input
+                type="range"
+                id="volumeSlider"
+                min="0"
+                max="100"
+                value="30"
+                class="frequency-slider"
+              />
+            </div>
+            <div class="value-display">
+              <span id="volumeDisplay" class="freq-display">30%</span>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="control-buttons">
+            <button id="playCustomBtn" class="btn btn-play">▶️ השמע</button>
+            <button id="stopBtn" class="btn btn-stop">⏸️ השהה</button>
+            <button id="clearBtn" class="btn btn-clear">🗑️ נקה</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>🔐 <a href="manager.html">פאנל מנהל</a></p>
+        <p>&copy; 2026 לראות את הקול - כל הזכויות שמורות לטכנודע חדרה</p>
+        <img
+          src="assets/images/technoda_logo.png"
+          alt="לוגו טכנודע"
+          class="logo"
+        />
+      </footer>
+    </div>
+
+    <script src="js/audio-engine.js"></script>
+    <script src="js/bluetooth-engine.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
