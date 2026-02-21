@@ -140,16 +140,16 @@ class FrequencyApp {
     document.getElementById('customFreqInput').value = frequency;
     document.getElementById('vizFreqDisplay').textContent = frequency;
 
-    // Reset visualizer timer and unfreeze
+    // Reset visualizer timer and clear old sample/pause state
     this.visualizer.resetTime();
-    this.visualizer.isFrozen = false;
-    this.visualizer.frozenFrequency = null;
-    this.visualizer.lastGoodWaveformData = null; // Reset waveform backup
+    this.visualizer.isPaused = false;
+    this.visualizer.pausedFrequency = null;
+    this.visualizer.capturedSample = null; // Clear old sample
 
     // Show console message
     console.log(`Playing: ${name} - ${frequency} Hz`);
 
-    // Start visualization
+    // Start visualization (will capture new sample)
     this.visualizer.start(this.audioEngine);
   }
 
@@ -261,9 +261,7 @@ class FrequencyApp {
         this.audioEngine.setVolume(volume);
         this.audioEngine.resume();
         
-        // Unfreeze the waveform and continue animation
-        this.visualizer.isFrozen = false;
-        this.visualizer.frozenFrequency = null;
+        // Continue animation (will capture new samples)
         this.visualizer.start(this.audioEngine);
         console.log(`Resumed playing: ${this.currentFrequency} Hz`);
         this.isResumeAvailable = false; // Consumed the resume opportunity
@@ -284,10 +282,11 @@ class FrequencyApp {
           b.classList.remove('active');
         });
 
-        // Reset visualizer timer and unfreeze
+        // Reset visualizer timer and clear old sample
         this.visualizer.resetTime();
-        this.visualizer.isFrozen = false;
-        this.visualizer.frozenFrequency = null;
+        this.visualizer.isPaused = false;
+        this.visualizer.pausedFrequency = null;
+        this.visualizer.capturedSample = null;
 
         // Start visualization
         console.log(`Playing custom frequency: ${this.currentFrequency} Hz`);
@@ -295,7 +294,7 @@ class FrequencyApp {
       }
     });
 
-    // Stop button - Pauses audio and freezes waveform for examination
+    // Stop button - Pauses audio and displays captured sample
     const stopBtn = document.getElementById('stopBtn');
     stopBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -311,13 +310,13 @@ class FrequencyApp {
       // Mark that resume is now available
       this.isResumeAvailable = true;
       
-      // Freeze the waveform so student can examine it
-      this.visualizer.freeze(this.currentFrequency);
+      // Pause the visualization and display the captured sample
+      this.visualizer.pause(this.currentFrequency);
       
-      console.log(`Audio paused - Waveform frozen at ${this.currentFrequency} Hz. Press Play to resume.`);
+      console.log(`Audio paused - Displaying captured sample at ${this.currentFrequency} Hz. Press Play to resume.`);
     });
 
-    // Clear button - Clears the frozen waveform
+    // Clear button - Clears the paused sample
     const clearBtn = document.getElementById('clearBtn');
     clearBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -339,16 +338,12 @@ class FrequencyApp {
       // Clear the visualizer
       this.visualizer.clear();
       
-      // Reset frozen state
-      this.visualizer.isFrozen = false;
-      this.visualizer.frozenFrequency = null;
-      
-      console.log('Waveform cleared - Ready to play new frequency');
+      console.log('Sample cleared - Ready to play new frequency');
     });
 
     // Resume audio context on user interaction
     document.addEventListener('click', () => {
-      this.audioEngine.resume();
+      this.audioEngine.ensureContextRunning();
     });
 
     // Bluetooth Controls
