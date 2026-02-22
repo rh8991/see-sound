@@ -9,7 +9,7 @@ const PORT = 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static('docs'));
 
 // Data file path
 const dataDir = path.join(__dirname, 'data');
