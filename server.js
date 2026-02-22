@@ -45,6 +45,11 @@ if (!fs.existsSync(frequenciesFile)) {
 
 // Routes
 
+// Serve index.html for root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Get all frequencies
 app.get('/api/frequencies', (req, res) => {
   try {
