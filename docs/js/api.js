@@ -2,21 +2,46 @@
 // Falls back to Express API if available
 
 const API = {
+  // Bump this when the data schema changes to force a re-init
+  DATA_VERSION: 2,
+
   // Initialize with default data if needed
   init() {
-    if (!localStorage.getItem('frequencies-data')) {
+    const stored = localStorage.getItem('frequencies-data');
+    const parsed = stored ? JSON.parse(stored) : null;
+
+    if (!parsed || parsed.version !== this.DATA_VERSION) {
       const defaultData = {
+        version: this.DATA_VERSION,
         samples: [
-          { id: 1, name: 'דו (C)', frequency: 262, category: 'note' },
-          { id: 2, name: 'רה (D)', frequency: 294, category: 'note' },
-          { id: 3, name: 'מי (E)', frequency: 330, category: 'note' },
-          { id: 4, name: 'פה (F)', frequency: 349, category: 'note' },
-          { id: 5, name: 'סול (G)', frequency: 392, category: 'note' },
-          { id: 6, name: 'לה (A)', frequency: 440, category: 'note' },
-          { id: 7, name: 'סי (B)', frequency: 494, category: 'note' },
-          { id: 8, name: 'משפחה נמוכה', frequency: 50, category: 'freq' },
-          { id: 9, name: 'משפחה בינונית', frequency: 500, category: 'freq' },
-          { id: 10, name: 'משפחה גבוהה', frequency: 2000, category: 'freq' }
+          // Octave 3
+          { id: 1,  name: 'דו (C)',  noteSymbol: 'C', octave: 3, frequency: 130.81, category: 'note' },
+          { id: 2,  name: 'רה (D)',  noteSymbol: 'D', octave: 3, frequency: 146.83, category: 'note' },
+          { id: 3,  name: 'מי (E)',  noteSymbol: 'E', octave: 3, frequency: 164.81, category: 'note' },
+          { id: 4,  name: 'פה (F)',  noteSymbol: 'F', octave: 3, frequency: 174.61, category: 'note' },
+          { id: 5,  name: 'סול (G)', noteSymbol: 'G', octave: 3, frequency: 196.00, category: 'note' },
+          { id: 6,  name: 'לה (A)',  noteSymbol: 'A', octave: 3, frequency: 220.00, category: 'note' },
+          { id: 7,  name: 'סי (B)',  noteSymbol: 'B', octave: 3, frequency: 246.94, category: 'note' },
+          // Octave 4
+          { id: 8,  name: 'דו (C)',  noteSymbol: 'C', octave: 4, frequency: 261.63, category: 'note' },
+          { id: 9,  name: 'רה (D)',  noteSymbol: 'D', octave: 4, frequency: 293.66, category: 'note' },
+          { id: 10, name: 'מי (E)',  noteSymbol: 'E', octave: 4, frequency: 329.63, category: 'note' },
+          { id: 11, name: 'פה (F)',  noteSymbol: 'F', octave: 4, frequency: 349.23, category: 'note' },
+          { id: 12, name: 'סול (G)', noteSymbol: 'G', octave: 4, frequency: 392.00, category: 'note' },
+          { id: 13, name: 'לה (A)',  noteSymbol: 'A', octave: 4, frequency: 440.00, category: 'note' },
+          { id: 14, name: 'סי (B)',  noteSymbol: 'B', octave: 4, frequency: 493.88, category: 'note' },
+          // Octave 5
+          { id: 15, name: 'דו (C)',  noteSymbol: 'C', octave: 5, frequency: 523.25, category: 'note' },
+          { id: 16, name: 'רה (D)',  noteSymbol: 'D', octave: 5, frequency: 587.33, category: 'note' },
+          { id: 17, name: 'מי (E)',  noteSymbol: 'E', octave: 5, frequency: 659.25, category: 'note' },
+          { id: 18, name: 'פה (F)',  noteSymbol: 'F', octave: 5, frequency: 698.46, category: 'note' },
+          { id: 19, name: 'סול (G)', noteSymbol: 'G', octave: 5, frequency: 783.99, category: 'note' },
+          { id: 20, name: 'לה (A)',  noteSymbol: 'A', octave: 5, frequency: 880.00, category: 'note' },
+          { id: 21, name: 'סי (B)',  noteSymbol: 'B', octave: 5, frequency: 987.77, category: 'note' },
+          // Special frequencies
+          { id: 22, name: 'בס עמוק',  frequency: 50,   category: 'freq' },
+          { id: 23, name: 'A440',      frequency: 440,  category: 'freq' },
+          { id: 24, name: 'תדר גבוה', frequency: 2000, category: 'freq' }
         ],
         categoryNames: {
           note: 'תווים מוזיקליים',
