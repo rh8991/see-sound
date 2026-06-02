@@ -17,23 +17,23 @@ class AudioEngine {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContext();
     }
-    
+
     // Create gain node and analyser only once
     if (!this.gainNode) {
       this.gainNode = this.audioContext.createGain();
       this.analyser = this.audioContext.createAnalyser();
-      
+
       // Connect gain and analyser to destination (permanent connection)
       this.gainNode.connect(this.analyser);
       this.analyser.connect(this.audioContext.destination);
-      
+
       // Set gain (volume)
       this.gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-      
+
       // Set analyser properties
-      this.analyser.fftSize = 2048;
+      this.analyser.fftSize = 4096; // Higher for better frequency resolution
     }
-    
+
     // If oscillator was stopped (cleared), create a new one
     if (!this.oscillator) {
       // Create new oscillator
@@ -43,8 +43,11 @@ class AudioEngine {
       this.oscillator.connect(this.gainNode);
 
       // Set oscillator properties
-      this.oscillator.type = 'sine';
-      this.oscillator.frequency.setValueAtTime(this.currentFrequency, this.audioContext.currentTime);
+      this.oscillator.type = "sine";
+      this.oscillator.frequency.setValueAtTime(
+        this.currentFrequency,
+        this.audioContext.currentTime,
+      );
 
       this.oscillator.start();
     }
@@ -57,21 +60,27 @@ class AudioEngine {
       clearTimeout(this.pendingSuspendId);
       this.pendingSuspendId = null;
     }
-    if (this.audioContext && this.audioContext.state === 'suspended') {
+    if (this.audioContext && this.audioContext.state === "suspended") {
       this.audioContext.resume();
     }
     this.currentFrequency = frequency;
     this.oscillator.frequency.setTargetAtTime(
       frequency,
       this.audioContext.currentTime,
-      0.01
+      0.05,
     );
-    
+
     // Cancel any pending volume changes and set to target volume
     this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
-    this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-    this.gainNode.gain.linearRampToValueAtTime(0.3, this.audioContext.currentTime + 0.05);
-    
+    this.gainNode.gain.setValueAtTime(
+      this.gainNode.gain.value,
+      this.audioContext.currentTime,
+    );
+    this.gainNode.gain.linearRampToValueAtTime(
+      0.3,
+      this.audioContext.currentTime + 0.05,
+    );
+
     this.isPlaying = true;
   }
 
@@ -80,8 +89,14 @@ class AudioEngine {
     if (this.audioContext && this.gainNode) {
       // Pause by muting the audio (don't stop oscillator)
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
-      this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-      this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.05);
+      this.gainNode.gain.setValueAtTime(
+        this.gainNode.gain.value,
+        this.audioContext.currentTime,
+      );
+      this.gainNode.gain.linearRampToValueAtTime(
+        0,
+        this.audioContext.currentTime + 0.05,
+      );
       this.isPlaying = false;
 
       if (this.pendingSuspendId) {
@@ -89,7 +104,11 @@ class AudioEngine {
       }
 
       this.pendingSuspendId = setTimeout(() => {
-        if (!this.isPlaying && this.audioContext && this.audioContext.state === 'running') {
+        if (
+          !this.isPlaying &&
+          this.audioContext &&
+          this.audioContext.state === "running"
+        ) {
           this.audioContext.suspend();
         }
         this.pendingSuspendId = null;
@@ -100,7 +119,7 @@ class AudioEngine {
   // Resume playing (resume from pause)
   async resume() {
     // Resume audio context if suspended
-    if (this.audioContext && this.audioContext.state === 'suspended') {
+    if (this.audioContext && this.audioContext.state === "suspended") {
       await this.audioContext.resume();
     }
 
@@ -108,20 +127,26 @@ class AudioEngine {
       clearTimeout(this.pendingSuspendId);
       this.pendingSuspendId = null;
     }
-    
+
     if (this.audioContext && this.gainNode && this.oscillator) {
       // Resume audio from pause by unmuting
       const targetVolume = 0.3; // Default volume
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
-      this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-      this.gainNode.gain.linearRampToValueAtTime(targetVolume, this.audioContext.currentTime + 0.05);
+      this.gainNode.gain.setValueAtTime(
+        this.gainNode.gain.value,
+        this.audioContext.currentTime,
+      );
+      this.gainNode.gain.linearRampToValueAtTime(
+        targetVolume,
+        this.audioContext.currentTime + 0.05,
+      );
       this.isPlaying = true;
     }
   }
 
   // Resume audio context without changing playback state
   ensureContextRunning() {
-    if (this.audioContext && this.audioContext.state === 'suspended') {
+    if (this.audioContext && this.audioContext.state === "suspended") {
       this.audioContext.resume();
     }
   }
@@ -149,7 +174,7 @@ class AudioEngine {
       this.oscillator.frequency.setTargetAtTime(
         frequency,
         this.audioContext.currentTime,
-        0.01
+        0.05,
       );
     }
   }
@@ -159,11 +184,17 @@ class AudioEngine {
     if (this.gainNode && this.audioContext) {
       // Clamp volume between 0 and 1
       const clampedVolume = Math.max(0, Math.min(1, volume));
-      
+
       // Cancel scheduled values and smoothly transition to new volume
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
-      this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-      this.gainNode.gain.linearRampToValueAtTime(clampedVolume, this.audioContext.currentTime + 0.05);
+      this.gainNode.gain.setValueAtTime(
+        this.gainNode.gain.value,
+        this.audioContext.currentTime,
+      );
+      this.gainNode.gain.linearRampToValueAtTime(
+        clampedVolume,
+        this.audioContext.currentTime + 0.05,
+      );
     }
   }
 }
@@ -172,7 +203,7 @@ class AudioEngine {
 class WaveformVisualizer {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext("2d");
     this.dataArray = null;
     this.capturedSample = null; // Snapshot sample taken while playing
     this.animationId = null;
@@ -181,10 +212,11 @@ class WaveformVisualizer {
     this.isPaused = false;
     this.pausedFrequency = null; // Store frequency when paused
     this.audioEngine = null; // Store reference to audioEngine
+    this.displaySamples = 512; // Lower = slower/fewer cycles visible (try 128–1024)
 
     // Set canvas resolution
     this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    window.addEventListener("resize", () => this.resizeCanvas());
   }
 
   resizeCanvas() {
@@ -203,22 +235,34 @@ class WaveformVisualizer {
     const height = this.canvas.height;
 
     // Clear canvas
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = "white";
     this.ctx.fillRect(0, 0, width, height);
 
     // Draw grid
     this.drawGrid();
 
     // Draw waveform
-    this.ctx.strokeStyle = '#667eea';
+    this.ctx.strokeStyle = "#667eea";
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
 
-    const sliceWidth = width / dataArray.length;
+    const sampleCount = Math.min(this.displaySamples, dataArray.length);
+    const sliceWidth = width / sampleCount;
     let x = 0;
 
-    for (let i = 0; i < dataArray.length; i++) {
-      const v = dataArray[i] / 128.0;
+    // Find the first upward zero-crossing so the wave starts at the same phase
+    // every frame — this eliminates flickering (same principle as oscilloscope trigger)
+    let startIndex = 0;
+    const searchLimit = dataArray.length - sampleCount;
+    for (let i = 1; i < searchLimit; i++) {
+      if (dataArray[i - 1] < 128 && dataArray[i] >= 128) {
+        startIndex = i;
+        break;
+      }
+    }
+
+    for (let i = 0; i < sampleCount; i++) {
+      const v = dataArray[startIndex + i] / 128.0;
       const y = (v * height) / 2;
 
       if (i === 0) {
@@ -237,11 +281,11 @@ class WaveformVisualizer {
       this.drawPausedIndicator();
     }
 
-    // Update time display
+    // Update time display (element may not exist on every page)
     if (!this.isPaused) {
       this.timeElapsed += (1 / 60) * 1000; // Approximate 60fps
-      const seconds = (this.timeElapsed / 1000).toFixed(2);
-      document.getElementById('timeDisplay').textContent = seconds;
+      const timeEl = document.getElementById("timeDisplay");
+      if (timeEl) timeEl.textContent = (this.timeElapsed / 1000).toFixed(2);
     }
   }
 
@@ -251,16 +295,18 @@ class WaveformVisualizer {
     const height = this.canvas.height;
 
     // Semi-transparent overlay
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
     this.ctx.fillRect(0, 0, width, height);
 
     // Paused text with frequency
-    this.ctx.font = 'bold 24px Arial';
-    this.ctx.fillStyle = 'rgba(118, 75, 162, 0.7)';
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    
-    const frequencyText = this.pausedFrequency ? `⏸️ Paused - ${this.pausedFrequency} Hz` : '⏸️ Paused';
+    this.ctx.font = "bold 24px Arial";
+    this.ctx.fillStyle = "rgba(118, 75, 162, 0.7)";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+
+    const frequencyText = this.pausedFrequency
+      ? `⏸️ Paused - ${this.pausedFrequency} Hz`
+      : "⏸️ Paused";
     this.ctx.fillText(frequencyText, width / 2, height / 2);
   }
 
@@ -271,7 +317,7 @@ class WaveformVisualizer {
     const gridSpacingX = 40;
     const gridSpacingY = 30;
 
-    this.ctx.strokeStyle = '#e0e0e0';
+    this.ctx.strokeStyle = "#e0e0e0";
     this.ctx.lineWidth = 1;
 
     // Vertical lines
@@ -291,7 +337,7 @@ class WaveformVisualizer {
     }
 
     // Center line (zero crossing)
-    this.ctx.strokeStyle = '#764ba2';
+    this.ctx.strokeStyle = "#764ba2";
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
     this.ctx.moveTo(0, height / 2);
@@ -299,25 +345,25 @@ class WaveformVisualizer {
     this.ctx.stroke();
   }
 
-  // Build an ideal sine waveform for the given frequency
-  buildSineWaveData(frequency) {
+  // Build an ideal sine waveform for the given frequency, scaled by volume (0–1)
+  buildSineWaveData(frequency, volume = 1) {
     if (!Number.isFinite(frequency) || frequency <= 0) {
       return null;
     }
 
-    const length = this.audioEngine && this.audioEngine.analyser
-      ? this.audioEngine.analyser.fftSize
-      : 2048;
-    const sampleRate = this.audioEngine && this.audioEngine.audioContext
-      ? this.audioEngine.audioContext.sampleRate
-      : 44100;
+    const length = this.displaySamples;
+    const sampleRate =
+      this.audioEngine && this.audioEngine.audioContext
+        ? this.audioEngine.audioContext.sampleRate
+        : 44100;
     const data = new Uint8Array(length);
     const twoPi = Math.PI * 2;
+    const amplitude = 127 * Math.max(0, Math.min(1, volume));
 
     for (let i = 0; i < length; i++) {
       const t = i / sampleRate;
       const value = Math.sin(twoPi * frequency * t);
-      data[i] = 128 + Math.round(127 * value);
+      data[i] = 128 + Math.round(amplitude * value);
     }
 
     return data;
@@ -325,16 +371,25 @@ class WaveformVisualizer {
 
   // Start continuous animation and sample capturing
   start(audioEngine) {
+    // Cancel any existing animation loop before starting a new one
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+
     this.audioEngine = audioEngine;
     this.isPaused = false;
     this.timeSinceStart = 0;
     this.capturedSample = null; // Clear any old sample
-    
+
     const animate = () => {
+      // Stop the loop if paused — guards against orphaned loops
+      if (this.isPaused) return;
+
       const waveformData = audioEngine.getWaveformData();
       if (waveformData) {
         this.draw(waveformData);
-        
+
         // Capture sample after 500ms of playing (to ensure clean waveform)
         this.timeSinceStart += (1 / 60) * 1000; // Approximate 60fps
         if (this.timeSinceStart >= 500 && !this.capturedSample) {
@@ -346,13 +401,13 @@ class WaveformVisualizer {
               break;
             }
           }
-          
+
           if (hasSignal) {
             this.capturedSample = new Uint8Array(waveformData);
-            console.log('Sample captured for pause display');
+            console.log("Sample captured for pause display");
           }
         }
-        
+
         // Update sample periodically while playing (every 2 seconds)
         if (this.timeSinceStart >= 500 && this.timeSinceStart % 2000 < 50) {
           let hasSignal = false;
@@ -362,7 +417,7 @@ class WaveformVisualizer {
               break;
             }
           }
-          
+
           if (hasSignal) {
             this.capturedSample = new Uint8Array(waveformData);
           }
@@ -382,18 +437,18 @@ class WaveformVisualizer {
   }
 
   // Pause and display captured sample
-  pause(frequency = null) {
+  pause(frequency = null, volume = 1) {
     // Cancel any pending animation frame
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
-    
+
     this.isPaused = true;
     this.pausedFrequency = frequency;
 
-    // Display an ideal sine waveform based on the paused frequency
-    const sineData = this.buildSineWaveData(frequency);
+    // Display an ideal sine waveform scaled to the current volume
+    const sineData = this.buildSineWaveData(frequency, volume);
     if (sineData) {
       this.draw(sineData);
       return;
@@ -411,10 +466,11 @@ class WaveformVisualizer {
   clear() {
     const width = this.canvas.width;
     const height = this.canvas.height;
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = "white";
     this.ctx.fillRect(0, 0, width, height);
     this.drawGrid();
-    document.getElementById('timeDisplay').textContent = '0.00';
+    const timeEl = document.getElementById("timeDisplay");
+    if (timeEl) timeEl.textContent = "0.00";
     this.isPaused = false;
     this.pausedFrequency = null;
     this.timeElapsed = 0;

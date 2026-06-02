@@ -8,6 +8,7 @@ class FrequencyApp {
     this.samples = [];
     this.currentFrequency = 440;
     this.selectedCategory = 'note'; // Default category
+    this.selectedOctave = 4; // Default octave
     this.data = null; // Store full frequency data
     this.isResumeAvailable = false; // Track if resume action is available (only after pause, not after new sample)
     this.init();
@@ -68,14 +69,80 @@ class FrequencyApp {
       categoryTitle.textContent = categoryName;
       categoryDiv.appendChild(categoryTitle);
 
+      // For notes category, add octave selector with arrow controls
+      if (categoryKey === 'note') {
+        const octaveSelectorDiv = document.createElement('div');
+        octaveSelectorDiv.className = 'octave-selector';
+        
+        // Get unique octaves from notes
+        const noteOctaves = [...new Set(
+          categories['note']
+            .filter(s => s.octave !== undefined)
+            .map(s => s.octave)
+        )].sort((a, b) => a - b);
+
+        const minOctave = Math.min(...noteOctaves);
+        const maxOctave = Math.max(...noteOctaves);
+
+        // Left arrow button
+        const leftArrowBtn = document.createElement('button');
+        leftArrowBtn.type = 'button';
+        leftArrowBtn.className = 'octave-arrow-btn octave-arrow-left';
+        leftArrowBtn.textContent = '▶';
+        leftArrowBtn.title = 'אוקטבה נמוכה יותר';
+        leftArrowBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (this.selectedOctave > minOctave) {
+            this.selectedOctave--;
+            this.renderSamples(data);
+          }
+        });
+        octaveSelectorDiv.appendChild(leftArrowBtn);
+
+        // Octave display
+        const octaveDisplay = document.createElement('div');
+        octaveDisplay.className = 'octave-display';
+        octaveDisplay.textContent = `אוקטבה ${this.selectedOctave}`;
+        octaveSelectorDiv.appendChild(octaveDisplay);
+
+        // Right arrow button
+        const rightArrowBtn = document.createElement('button');
+        rightArrowBtn.type = 'button';
+        rightArrowBtn.className = 'octave-arrow-btn octave-arrow-right';
+        rightArrowBtn.textContent = '◀';
+        rightArrowBtn.title = 'אוקטבה גבוהה יותר';
+        rightArrowBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (this.selectedOctave < maxOctave) {
+            this.selectedOctave++;
+            this.renderSamples(data);
+          }
+        });
+        octaveSelectorDiv.appendChild(rightArrowBtn);
+
+        categoryDiv.appendChild(octaveSelectorDiv);
+      }
+
       const buttonsDiv = document.createElement('div');
       buttonsDiv.className = 'samples-grid';
 
       categories[categoryKey].forEach(sample => {
+        // Skip notes that don't match the selected octave
+        if (categoryKey === 'note' && sample.octave !== this.selectedOctave) {
+          return;
+        }
+
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'sample-btn';
-        btn.textContent = `${sample.name}\n${sample.frequency} Hz`;
+        
+        // Format display text based on whether it has octave info
+        let displayText = sample.name;
+        if (sample.octave !== undefined) {
+          displayText = `${sample.noteSymbol}${sample.octave}`;
+        }
+        
+        btn.textContent = `${displayText}\n${sample.frequency.toFixed(2)} Hz`;
         btn.dataset.frequency = sample.frequency;
         btn.dataset.name = sample.name;
         btn.dataset.category = categoryKey;
@@ -311,7 +378,8 @@ class FrequencyApp {
       this.isResumeAvailable = true;
       
       // Pause the visualization and display the captured sample
-      this.visualizer.pause(this.currentFrequency);
+      const volume = parseFloat(volumeSlider.value) / 100;
+      this.visualizer.pause(this.currentFrequency, volume);
       
       console.log(`Audio paused - Displaying captured sample at ${this.currentFrequency} Hz. Press Play to resume.`);
     });
@@ -346,8 +414,105 @@ class FrequencyApp {
       this.audioEngine.ensureContextRunning();
     });
 
+    // Modal Controls
+    this.setupModalControls();
+
     // Bluetooth Controls
     this.setupBluetoothControls();
+  }
+
+  setupModalControls() {
+    const infoBtn = document.getElementById('infoBtn');
+    const modal = document.getElementById('introModal');
+    const closeBtn = document.querySelector('.close-btn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const stepCounter = document.getElementById('stepCounter');
+
+    let currentStep = 0;
+    const totalSteps = document.querySelectorAll('.tour-step').length;
+
+    const showStep = (step) => {
+      // Hide all steps
+      document.querySelectorAll('.tour-step').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      // Show current step
+      const currentStepEl = document.querySelector(`.tour-step[data-step="${step}"]`);
+      if (currentStepEl) {
+        currentStepEl.classList.add('active');
+      }
+
+      // Update counter
+      stepCounter.textContent = `${step + 1} / ${totalSteps}`;
+
+      // Update button states
+      prevBtn.disabled = step === 0;
+      nextBtn.disabled = step === totalSteps - 1;
+
+      currentStep = step;
+    };
+
+    // Open modal
+    infoBtn.addEventListener('click', () => {
+      modal.classList.add('show');
+      showStep(currentStep);
+    });
+
+    // Close modal
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('show');
+    });
+
+    // Close modal when clicking outside the content
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('show')) {
+        modal.classList.remove('show');
+      }
+    });
+
+    // Next button
+    nextBtn.addEventListener('click', () => {
+      if (currentStep < totalSteps - 1) {
+        showStep(currentStep + 1);
+      }
+    });
+
+    // Previous button
+    prevBtn.addEventListener('click', () => {
+      if (currentStep > 0) {
+        showStep(currentStep - 1);
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('show')) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        if (currentStep < totalSteps - 1) {
+          showStep(currentStep + 1);
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        if (currentStep > 0) {
+          showStep(currentStep - 1);
+        }
+      }
+    });
+
+    // Show the modal automatically on page load
+    setTimeout(() => {
+      modal.classList.add('show');
+      showStep(0);
+    }, 500);
   }
 
   setupBluetoothControls() {

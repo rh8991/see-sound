@@ -5,14 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>לראות את הקול</title>
     <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=gamepad_circle_up,play_circle"
+    />
   </head>
   <body>
     <div class="app-container">
       <!-- Header -->
       <header class="app-header">
-        <h1>לראות את הקול</h1>
+        <div class="header-top">
+          <button id="infoBtn" class="info-btn" title="מידע">ℹ</button>
+          <h1>לראות את הקול</h1>
+          <img
+            src="assets/images/technoda_logo.png"
+            alt="לוגו טכנודע"
+            class="logo"
+          />
+        </div>
         <p class="subtitle">מעבדה אינטראקטיבית לחקר תדרי אודיו</p>
       </header>
+
+      <!-- Introduction Modal - Guided Tour -->
+      <div id="introModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <div class="tour-indicator">
+            <span id="stepCounter">1 / 9</span>
+          </div>
+
+          <!-- Step 0: Welcome -->
+          <div class="tour-step active" data-step="0">
+            <h2>ברוכים הבאים ללראות את הקול</h2>
+            <p>
+              אפליקציה זו מאפשרת לך ללמוד על גלים בצורה אינטראקטיבית. תוכל לראות
+              את הגלים בתנועה ולהבין כיצד תדר משפיע על צליל.
+            </p>
+            <p>
+              במדריך זה נלמד כיצד להשתמש בכל חלק של האפליקציה. לחץ על "הבא" כדי
+              להמשיך.
+            </p>
+          </div>
+
+          <!-- Step 1: Waves Explanation -->
+          <div class="tour-step" data-step="1">
+            <h2>מהם גלים?</h2>
+            <p>
+              גל קול הוא רטט שמתפשט דרך המדיום. לכל גל יש שלוש תכונות חשובות:
+            </p>
+            <ul>
+              <li>
+                <strong>תדר (Frequency)</strong> - מספר הרטטים בשנייה, נמדד בהרץ
+                (Hz). תדר גבוה יותר = צליל גבוה יותר, תדר נמוך יותר = צליל נמוך
+                יותר.
+              </li>
+              <li>
+                <strong>משרעת (Amplitude)</strong> - גודל הרטט. משרעת גדולה יותר
+                = צליל חזק יותר, משרעת קטנה יותר = צליל חלש יותר.
+              </li>
+              <li>
+                <strong>אורך הגל (Wavelength)</strong> - המרחק בין שתי נקודות
+                זהות על הגל. אורך גל קטן יותר = תדר גבוה יותר.
+              </li>
+            </ul>
+          </div>
+
+          <!-- Step 2: Visualization Panel -->
+          <div class="tour-step" data-step="2">
+            <h2>פאנל הויזואליזציה</h2>
+            <p>
+              <strong>פאנל הויזואליזציה</strong> נמצא בצד שמאל של הטלפון. זה
+              מציג את הגל בתנועה בזמן אמת.
+            </p>
+            <p>
+              כאן תוכל לראות כיצד המשרעת (גובה הגל) והתדר (מהירות הרטט) משתנים
+              בהתאם לצליל שמושמע.
+            </p>
+            <p>
+              ניתן לראות גם את הזמן השחלוף ואת התדר הנוכחי בהערות מתחת לגרף.
+            </p>
+          </div>
+
+          <!-- Step 3: Notes Tab -->
+          <div class="tour-step" data-step="3">
+            <h2>טב תווים מוזיקליים</h2>
+            <p>
+              בטב <strong>תווים</strong> בצד ימין תוכל למצוא תווים מוזיקליים.
+            </p>
+            <p>
+              בקטגוריה <strong>תווים מוזיקליים</strong>, תוכל לבחור מתווים
+              שונים: דו, רה, מי, פה, סול, לה, סי.
+            </p>
+            <p>
+              השתמש בחצים <strong>אוקטבה</strong> (◀ ▶) כדי להעביר בין אוקטבות
+              שונות, ואז לחץ על תו כדי להשמיע אותו.
+            </p>
+          </div>
+
+          <!-- Step 4: Special Frequencies -->
+          <div class="tour-step" data-step="4">
+            <h2>תדרים מיוחדים</h2>
+            <p>
+              בטב <strong>תווים</strong>, בחר בקטגוריה
+              <strong>תדרים מיוחדים</strong> כדי לחקור תדרים מעניינים וחשובים.
+            </p>
+            <p>
+              כאן תוכל למצוא תדרים כמו A440 (תו ההתאמה הסטנדרטי), ותדרים אחרים
+              בעלי משמעות מוזיקלית.
+            </p>
+            <p>לחץ על כל תדר כדי להשמיע אותו ולראות כיצד הגל משתנה.</p>
+          </div>
+
+          <!-- Step 5: Custom Frequency -->
+          <div class="tour-step" data-step="5">
+            <h2>התאמה אישית - בחירת תדר חופשי</h2>
+            <p>בטב <strong>התאמה</strong> תוכל לבחור כל תדר שתרצה.</p>
+            <p>
+              השתמש ב<strong>מחוון התדר</strong> להגדרת ערך בין 20 Hz ל-20,000
+              Hz, או הקלד את הערך ישירות בשדה המספר.
+            </p>
+            <p>
+              לאחר בחירת התדר, לחץ על <strong>השמע</strong> כדי להשמיע את התדר
+              שבחרת.
+            </p>
+          </div>
+
+          <!-- Step 6: Volume Control -->
+          <div class="tour-step" data-step="6">
+            <h2>שליטה בעוצמת הקול</h2>
+            <p>
+              ב<strong>מחוון עוצמת הקול</strong> תוכל לשנות את רמת העוצמה של
+              הצליל שמושמע.
+            </p>
+            <p>הערך משתנה בין 0% (שקט לחלוטין) ל-100% (עוצמה מקסימלית).</p>
+            <p>
+              עוצמה גדולה יותר תגרום למשרעת הגל בויזואליזציה להיות גבוה יותר.
+            </p>
+          </div>
+
+          <!-- Step 7: Control Buttons -->
+          <div class="tour-step" data-step="7">
+            <h2>כפתורי הבקרה</h2>
+            <p>
+              <strong>▶️ השמע</strong> - לחץ כדי להשמיע את התדר הנוכחי או להמשיך
+              משהייה.
+            </p>
+            <p>
+              <strong>⏸️ השהה</strong> - לחץ כדי להשהות את הצליל ולהציג את הגל
+              שנתפס.
+            </p>
+            <p>
+              <strong>🗑️ נקה</strong> - לחץ כדי לנקות את הגרף וליצור מקום לגל
+              חדש.
+            </p>
+          </div>
+
+          <!-- Step 8: Bluetooth -->
+          <div class="tour-step" data-step="8">
+            <h2>בלוטוס (אופציונלי)</h2>
+            <p>
+              בטב <strong>בלוטוס</strong> תוכל להתחבר להתקנים חיצוניים באמצעות
+              בלוטוס.
+            </p>
+            <p>
+              לחץ על <strong>🔍 סריקה</strong> כדי לחפש התקנים זמינים בסביבה.
+            </p>
+            <p>
+              בחר התקן מהרשימה כדי להתחבר אליו. כאשר מחובר, תוכל לשלוח נתונים
+              להתקן הבלוטוס.
+            </p>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="tour-navigation">
+            <button id="prevBtn" class="nav-btn prev-btn">→ הקודם</button>
+            <button id="nextBtn" class="nav-btn next-btn">הבא ←</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Main Layout: Two Columns -->
       <div class="dual-layout">
@@ -158,6 +328,7 @@
 
           <!-- Control Buttons -->
           <div class="control-buttons">
+            <!--<span class="material-symbols-outlined"> play_circle </span>-->
             <button id="playCustomBtn" class="btn btn-play">▶️ השמע</button>
             <button id="stopBtn" class="btn btn-stop">⏸️ השהה</button>
             <button id="clearBtn" class="btn btn-clear">🗑️ נקה</button>
@@ -165,15 +336,16 @@
         </div>
       </div>
 
+      <!-- Simon Game FAB -->
+      <a href="simon.html" class="simon-fab" title="עבור למשחק סיימון">
+        <span class="material-symbols-outlined simon-fab-icon">gamepad_circle_up</span>
+        <span class="simon-fab-label">סיימון</span>
+      </a>
+
       <!-- Footer -->
       <footer class="app-footer">
         <p>🔐 <a href="manager.html">פאנל מנהל</a></p>
-        <p>&copy; 2026 לראות את הקול - כל הזכויות שמורות לטכנודע חדרה</p>
-        <img
-          src="assets/images/technoda_logo.png"
-          alt="לוגו טכנודע"
-          class="logo"
-        />
+        <p>&copy; 2026 לראות את הקול - טכנודע חדרה</p>
       </footer>
     </div>
 

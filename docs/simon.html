@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>סיימון - לראות את הקול</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=home"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-top">
+          <img src="assets/images/technoda_logo.png" alt="לוגו טכנודע" class="logo logo-end" />
+          <a href="index.html" class="simon-back-link" title="חזרה לדף הבית">
+            <span class="material-symbols-outlined simon-back-icon">home</span>
+            <span>דף הבית</span>
+          </a>
+          <h1>🎵 סיימון</h1>
+        </div>
+        <p class="subtitle">חזור על הרצף המוזיקלי - ראה את הגל בכל צליל</p>
+      </header>
+
+      <!-- Main Simon Layout -->
+      <div class="simon-layout">
+
+        <!-- LEFT: Waveform visualization -->
+        <div class="simon-viz-panel">
+          <h2>גל הצליל</h2>
+          <canvas id="simonCanvas" class="simon-canvas"></canvas>
+          <div id="noteLabel" class="note-label">לחץ התחל למשחק</div>
+        </div>
+
+        <!-- RIGHT: Game -->
+        <div class="simon-game-panel">
+          <div class="simon-overlay" id="gameOverlay">
+            <div class="simon-overlay-box">
+              <h3 id="overlayEmoji">❌</h3>
+              <p id="overlayMsg">טעות! נסה שוב</p>
+              <button class="btn btn-play" id="overlayRestartBtn">▶ שחק שוב</button>
+            </div>
+          </div>
+
+          <div class="simon-header">
+            <span class="simon-title">🎹 סיימון</span>
+          </div>
+
+          <div class="simon-score-box">
+            <div class="score-item">
+              <div class="score-label">סיבוב</div>
+              <div class="score-value" id="roundDisplay">0</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">שיא</div>
+              <div class="score-value" id="bestDisplay">0</div>
+            </div>
+            <div class="score-item">
+              <div class="score-label">שלב</div>
+              <div class="score-value" id="stepDisplay">0/0</div>
+            </div>
+          </div>
+
+          <div class="simon-status" id="simonStatus">לחץ "התחל" כדי להתחיל</div>
+
+          <div class="sequence-dots" id="sequenceDots"></div>
+
+          <div class="note-buttons-grid" id="noteButtonsGrid"></div>
+
+          <div class="simon-controls">
+            <button class="btn btn-play" id="startBtn">▶ התחל</button>
+            <button class="btn btn-clear" id="replayBtn" disabled>↺ שמע שוב</button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="app-footer">
+        <p>&copy; 2026 לראות את הקול - טכנודע חדרה</p>
+      </footer>
+    </div>
+
+    <script src="js/audio-engine.js"></script>
+    <script src="js/simon.js"></script>
+  </body>
+</html>

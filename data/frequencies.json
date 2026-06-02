@@ -3,59 +3,305 @@
     {
       "id": 1,
       "name": "דו (C)",
-      "frequency": 262,
+      "noteSymbol": "C",
+      "octave": 2,
+      "frequency": 65.41,
       "category": "note"
     },
     {
       "id": 2,
       "name": "רה (D)",
-      "frequency": 294,
+      "noteSymbol": "D",
+      "octave": 2,
+      "frequency": 73.42,
       "category": "note"
     },
     {
       "id": 3,
       "name": "מי (E)",
-      "frequency": 330,
+      "noteSymbol": "E",
+      "octave": 2,
+      "frequency": 82.41,
       "category": "note"
     },
     {
       "id": 4,
       "name": "פה (F)",
-      "frequency": 349,
+      "noteSymbol": "F",
+      "octave": 2,
+      "frequency": 87.31,
       "category": "note"
     },
     {
       "id": 5,
       "name": "סול (G)",
-      "frequency": 392,
+      "noteSymbol": "G",
+      "octave": 2,
+      "frequency": 98,
       "category": "note"
     },
     {
       "id": 6,
       "name": "לה (A)",
-      "frequency": 440,
+      "noteSymbol": "A",
+      "octave": 2,
+      "frequency": 110,
       "category": "note"
     },
     {
       "id": 7,
       "name": "סי (B)",
-      "frequency": 494,
+      "noteSymbol": "B",
+      "octave": 2,
+      "frequency": 123.47,
       "category": "note"
     },
     {
       "id": 8,
+      "name": "דו (C)",
+      "noteSymbol": "C",
+      "octave": 3,
+      "frequency": 130.81,
+      "category": "note"
+    },
+    {
+      "id": 9,
+      "name": "רה (D)",
+      "noteSymbol": "D",
+      "octave": 3,
+      "frequency": 146.83,
+      "category": "note"
+    },
+    {
+      "id": 10,
+      "name": "מי (E)",
+      "noteSymbol": "E",
+      "octave": 3,
+      "frequency": 164.81,
+      "category": "note"
+    },
+    {
+      "id": 11,
+      "name": "פה (F)",
+      "noteSymbol": "F",
+      "octave": 3,
+      "frequency": 174.61,
+      "category": "note"
+    },
+    {
+      "id": 12,
+      "name": "סול (G)",
+      "noteSymbol": "G",
+      "octave": 3,
+      "frequency": 196,
+      "category": "note"
+    },
+    {
+      "id": 13,
+      "name": "לה (A)",
+      "noteSymbol": "A",
+      "octave": 3,
+      "frequency": 220,
+      "category": "note"
+    },
+    {
+      "id": 14,
+      "name": "סי (B)",
+      "noteSymbol": "B",
+      "octave": 3,
+      "frequency": 246.94,
+      "category": "note"
+    },
+    {
+      "id": 15,
+      "name": "דו (C)",
+      "noteSymbol": "C",
+      "octave": 4,
+      "frequency": 261.63,
+      "category": "note"
+    },
+    {
+      "id": 16,
+      "name": "רה (D)",
+      "noteSymbol": "D",
+      "octave": 4,
+      "frequency": 293.66,
+      "category": "note"
+    },
+    {
+      "id": 17,
+      "name": "מי (E)",
+      "noteSymbol": "E",
+      "octave": 4,
+      "frequency": 329.63,
+      "category": "note"
+    },
+    {
+      "id": 18,
+      "name": "פה (F)",
+      "noteSymbol": "F",
+      "octave": 4,
+      "frequency": 349.23,
+      "category": "note"
+    },
+    {
+      "id": 19,
+      "name": "סול (G)",
+      "noteSymbol": "G",
+      "octave": 4,
+      "frequency": 392,
+      "category": "note"
+    },
+    {
+      "id": 20,
+      "name": "לה (A)",
+      "noteSymbol": "A",
+      "octave": 4,
+      "frequency": 440,
+      "category": "note"
+    },
+    {
+      "id": 21,
+      "name": "סי (B)",
+      "noteSymbol": "B",
+      "octave": 4,
+      "frequency": 493.88,
+      "category": "note"
+    },
+    {
+      "id": 22,
+      "name": "דו (C)",
+      "noteSymbol": "C",
+      "octave": 5,
+      "frequency": 523.25,
+      "category": "note"
+    },
+    {
+      "id": 23,
+      "name": "רה (D)",
+      "noteSymbol": "D",
+      "octave": 5,
+      "frequency": 587.33,
+      "category": "note"
+    },
+    {
+      "id": 24,
+      "name": "מי (E)",
+      "noteSymbol": "E",
+      "octave": 5,
+      "frequency": 659.25,
+      "category": "note"
+    },
+    {
+      "id": 25,
+      "name": "פה (F)",
+      "noteSymbol": "F",
+      "octave": 5,
+      "frequency": 698.46,
+      "category": "note"
+    },
+    {
+      "id": 26,
+      "name": "סול (G)",
+      "noteSymbol": "G",
+      "octave": 5,
+      "frequency": 783.99,
+      "category": "note"
+    },
+    {
+      "id": 27,
+      "name": "לה (A)",
+      "noteSymbol": "A",
+      "octave": 5,
+      "frequency": 880,
+      "category": "note"
+    },
+    {
+      "id": 28,
+      "name": "סי (B)",
+      "noteSymbol": "B",
+      "octave": 5,
+      "frequency": 987.77,
+      "category": "note"
+    },
+    {
+      "id": 29,
+      "name": "דו (C)",
+      "noteSymbol": "C",
+      "octave": 6,
+      "frequency": 1046.5,
+      "category": "note"
+    },
+    {
+      "id": 30,
+      "name": "רה (D)",
+      "noteSymbol": "D",
+      "octave": 6,
+      "frequency": 1174.66,
+      "category": "note"
+    },
+    {
+      "id": 31,
+      "name": "מי (E)",
+      "noteSymbol": "E",
+      "octave": 6,
+      "frequency": 1318.51,
+      "category": "note"
+    },
+    {
+      "id": 32,
+      "name": "פה (F)",
+      "noteSymbol": "F",
+      "octave": 6,
+      "frequency": 1396.91,
+      "category": "note"
+    },
+    {
+      "id": 33,
+      "name": "סול (G)",
+      "noteSymbol": "G",
+      "octave": 6,
+      "frequency": 1567.98,
+      "category": "note"
+    },
+    {
+      "id": 34,
+      "name": "לה (A)",
+      "noteSymbol": "A",
+      "octave": 6,
+      "frequency": 1760,
+      "category": "note"
+    },
+    {
+      "id": 35,
+      "name": "סי (B)",
+      "noteSymbol": "B",
+      "octave": 6,
+      "frequency": 1975.53,
+      "category": "note"
+    },
+    {
+      "id": 36,
+      "name": "דו (C)",
+      "noteSymbol": "C",
+      "octave": 7,
+      "frequency": 2093,
+      "category": "note"
+    },
+    {
+      "id": 37,
       "name": "משפחה נמוכה",
       "frequency": 50,
       "category": "freq"
     },
     {
-      "id": 9,
+      "id": 38,
       "name": "משפחה בינונית",
       "frequency": 500,
       "category": "freq"
     },
     {
-      "id": 10,
+      "id": 39,
       "name": "משפחה גבוהה",
       "frequency": 2000,
       "category": "freq"

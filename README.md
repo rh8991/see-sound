@@ -1,122 +1,129 @@
-# 🎵 שמוע-צליל (See-Sound)
+# לראות את הקול (See-Sound)
 
-An interactive web application for learning about sound frequencies with Hebrew RTL support.
+An interactive web laboratory for exploring sound frequencies, built for educational use at Technoda Hadera (טכנודע חדרה). Hebrew RTL interface throughout.
 
-**Live Demo**: [Deploy to GitHub Pages](#github-pages-deployment)
+**Live Demo**: Deploy to GitHub Pages — see [GitHub Pages Deployment](#github-pages-deployment) below.
 
 ## Features
 
-- 🎵 **Interactive Frequency Listening**: Choose from preset frequencies or create custom ones
-- 📊 **Waveform Visualization**: Real-time visualization of sine wave patterns with freeze capability
-- 🎚️ **Frequency Slider**: Fine-tune frequencies from 20Hz to 20,000Hz
-- 🔊 **Volume Control**: Adjustable volume slider
-- 🔐 **Manager Panel**: Password-protected admin interface to manage frequency samples
-- 🇮🇱 **Hebrew & RTL Support**: Full Right-to-Left interface support
-- 📱 **Responsive Design**: Works on desktop and mobile devices
-- 🌐 **GitHub Pages Compatible**: Runs entirely in the browser with localStorage
+- **Interactive Frequency Lab**: Choose from preset musical notes or enter a custom frequency (20 Hz – 20,000 Hz)
+- **Waveform Visualization**: Real-time canvas rendering of time-domain audio data with pause/freeze capability
+- **Octave Navigation**: Step through octaves (◀ ▶) on the musical notes tab
+- **Bluetooth Tab**: Scan for and connect to nearby Bluetooth devices via the Web Bluetooth API
+- **Simon Game**: Memory game (`simon.html`) — repeat a growing sequence of musical notes while watching each note's waveform
+- **Guided Tour**: 9-step intro modal explaining waves, controls, and all tabs
+- **Manager Panel**: Password-protected admin page to add, edit, and delete frequency samples and categories
+- **Hebrew & RTL Support**: Full right-to-left interface
+- **Responsive Design**: Works on desktop and mobile
+- **GitHub Pages Compatible**: Runs entirely in the browser with localStorage
 
 ## Project Structure
 
-```see-sound/
-├── package.json                 # Node.js dependencies (optional - for local dev)
-├── server.js                    # Express server (optional - for local dev with persistence)
-├── public/                      # All files served to browser (GitHub Pages root)
-│   ├── index.html              # Student interface (main page)
-│   ├── manager.html            # Manager/admin panel
+```text
+see-sound/
+├── package.json              # Node.js dependencies (optional local dev)
+├── server.js                 # Express server (optional local dev with persistence)
+├── data/
+│   └── frequencies.json      # Default frequency data
+├── docs/                     # GitHub Pages root (served to browser)
+│   ├── index.html            # Main student interface
+│   ├── simon.html            # Simon memory game
+│   ├── manager.html          # Manager / admin panel
 │   ├── css/
-│   │   └── style.css           # Main stylesheet with RTL support
+│   │   └── style.css         # Stylesheet with RTL support
+│   ├── assets/
+│   │   └── images/
 │   └── js/
-│       ├── api.js              # API abstraction layer (localStorage/Express)
-│       ├── audio-engine.js     # Audio generation and visualization
-│       ├── app.js              # Main student app logic
-│       └── manager.js          # Manager panel logic
-└── README.md                    # This file
+│       ├── audio-engine.js   # Web Audio API — tone generation and waveform visualization
+│       ├── bluetooth-engine.js  # Web Bluetooth API — device scan and connect
+│       ├── api.js            # Data abstraction (localStorage / Express)
+│       ├── app.js            # Main student app logic
+│       ├── simon.js          # Simon game logic
+│       └── manager.js        # Manager panel logic
+└── README.md
 ```
+
+## Pages
+
+### Main Interface (`index.html`)
+
+The student lab. Two-column layout: waveform canvas on the left, controls on the right.
+
+**Right panel tabs:**
+
+| Tab | What it does |
+| --- | ------------ |
+| **תווים** (Notes) | Preset musical notes (C D E F G A B) with octave navigation; Special Frequencies sub-category |
+| **התאמה** (Custom) | Frequency slider + number input, 20–20,000 Hz |
+| **בלוטוס** (Bluetooth) | Scan for and connect to Bluetooth devices |
+
+**Control buttons:**
+
+- **▶️ השמע** — Play the selected frequency
+- **⏸️ השהה** — Pause audio and freeze the waveform
+- **🗑️ נקה** — Clear the canvas
+
+The ℹ button opens a 9-step guided tour.
+
+Footer links to the Simon game and the Manager panel.
+
+### Simon Game (`simon.html`)
+
+A Hebrew Simon Says memory game using the 7 musical notes (C D E F G A B). The game plays a growing sequence; each note lights up its color-coded button and shows its live waveform on the canvas. Players must repeat the sequence in order.
+
+- Tracks current round, best score (localStorage), and step progress
+- **↺ שמע שוב** — replay the current sequence
+- Back link returns to `index.html`
+
+### Manager Panel (`manager.html`)
+
+Password-protected admin interface.
+
+1. Navigate to `/manager.html`
+2. Enter the password: **`admin123`** (change for production — see [Security](#security))
+3. Add, edit, or delete frequency samples
+4. Edit category display names
 
 ## Installation & Usage
 
-### Option 1: GitHub Pages (No Installation Needed! 🎉)
+### Option 1: GitHub Pages (No Installation Needed)
 
-Simply fork/clone the repository and deploy to GitHub Pages:
-
-1. **Fork the repository** on GitHub
+1. Fork the repository on GitHub
 2. Go to **Settings → Pages**
-3. Under "Source", select **Deploy from a branch**
-4. Choose **main** branch and **/root** folder (or `/public` if you have it set up)
-5. Your app is now live at: `https://YOUR-USERNAME.github.io/see-sound/`
+3. Under "Source", select **main** branch and **/docs** folder
+4. Click "Save"
 
-**No backend needed!** Everything runs in your browser with localStorage.
+Your app will be live at `https://YOUR-USERNAME.github.io/see-sound/`
 
-### Option 2: Local Development with Node.js Server
+No backend needed — everything runs in the browser with localStorage.
 
-For local testing with optional Express backend:
+### Option 2: Local Development
 
-1. **Clone or download the project**
+```bash
+cd see-sound
+npm install
+npm start
+```
 
-   ```bash
-   cd see-sound
-   ```
+Server starts on `http://localhost:3000`.
 
-2. **Install dependencies**
+- Student interface: `http://localhost:3000`
+- Simon game: `http://localhost:3000/simon.html`
+- Manager panel: `http://localhost:3000/manager.html`
 
-   ```bash
-   npm install
-   ```
-
-3. **Start the server**
-
-   ```bash
-   npm start
-   ```
-
-The server will start on `http://localhost:3000`
-
-- **Student Interface**: `http://localhost:3000` (or `http://localhost:3000/index.html`)
-- **Manager Panel**: `http://localhost:3000/manager.html`
-
-**Note**: The Express backend (server.js) is optional. The app works perfectly with just localStorage (like on GitHub Pages).
-
-### Student Interface
-
-1. **Select from Presets**: Click any frequency button to play it
-2. **Custom Frequency**: Use the slider or input field to select any frequency
-3. **Volume Control**: Adjust the volume slider (0-100%)
-4. **Play/Stop**: Use the play and stop buttons to control audio
-5. **Freeze Waveform**: Click "Stop" to freeze the visualization for explanation
-6. **Clear**: Click "Clear" to remove the frozen waveform
-
-### Manager Panel
-
-1. Navigate to `/manager.html`
-2. Enter the password: **`admin123`** (change this for production!)
-3. **Manage Frequency Samples**:
-   - View all current frequency samples
-   - Edit existing frequencies (names and values)
-   - Delete frequencies
-   - Add new frequencies
-
-4. **Manage Categories**:
-   - Edit category names displayed in the student interface
-   - Current categories: "תווים מוזיקליים" (Musical Notes) and "תדרים מיוחדים" (Special Frequencies)
-
-### Data Storage
-
-- **On GitHub Pages**: Data is stored in browser's localStorage (persists between sessions)
-- **With Express Backend**: Optionally syncs with server database for persistence
-
-Each user has their own localStorage, so changes made in one browser don't affect others.
+The Express backend (`server.js`) is optional. The app works fully with just localStorage.
 
 ## Default Frequency Samples
 
 ### Musical Notes (תווים מוזיקליים)
 
-- סול (G): 392 Hz
-- דו (C): 262 Hz
-- רה (D): 294 Hz
-- מי (E): 330 Hz
-- פה (F): 349 Hz
-- לה (A): 440 Hz
-- סי (B): 494 Hz
+- דו (C4) — 262 Hz
+- רה (D4) — 294 Hz
+- מי (E4) — 330 Hz
+- פה (F4) — 349 Hz
+- סול (G4) — 392 Hz
+- לה (A4) — 440 Hz
+- סי (B4) — 494 Hz
 
 ### Special Frequencies (תדרים מיוחדים)
 
@@ -126,204 +133,115 @@ Each user has their own localStorage, so changes made in one browser don't affec
 
 ## Security
 
-⚠️ **Important Security Notes**:
-
-1. **Password**: The default manager password is `admin123`
-   - Change it by editing the `API.init()` method in `public/js/api.js` (look for the password check: `if (password !== 'admin123')`)
-   - **On GitHub Pages**: The password is visible in client-side code (this is unavoidable with static hosting)
-   - **Use only for educational purposes** - don't store sensitive passwords!
-
-2. **Data Privacy**:
-   - Data is stored in browser's localStorage (not sent to any server unless you use the Express backend)
-   - Each browser/device has separate data
-   - Clearing browser data will reset to default frequencies
-
-3. **If using Express Backend**:
-   - Change the password in `server.js` line 30: `const MANAGER_PASSWORD = 'admin123';`
-   - Consider adding authentication tokens for production use
-   - Secure your server with HTTPS
+- **Default password**: `admin123`
+  - Change it in `docs/js/api.js` (the `if (password !== 'admin123')` check)
+  - On GitHub Pages the password is visible in client-side code — use only for educational purposes
+- **Express backend**: Change password in `server.js` line 30 (`const MANAGER_PASSWORD`)
+- **Data**: Stored in browser localStorage. Clearing browser data resets to defaults.
 
 ## Technical Details
 
 ### Architecture
 
-The app uses an **API abstraction layer** that works in two modes:
+The `api.js` abstraction layer operates in two modes:
 
-1. **GitHub Pages Mode** (Default):
-   - Uses browser's `localStorage` API
-   - No backend server needed
-   - Changes persist in the browser
-   - Each browser has its own data
+1. **GitHub Pages / static mode** (default): uses `localStorage`; no backend; each browser has its own data
+2. **Express mode** (optional): falls back to Express API when `server.js` is running; syncs `data/frequencies.json`; multiple users share data
 
-2. **Express Backend Mode** (Optional):
-   - Falls back to Express API if available
-   - Attempts to sync localStorage with server
-   - Server persists data in `data/frequencies.json`
-   - Multiple users can share data
+### Audio
 
-The `api.js` file handles both modes seamlessly.
-
-### Audio Generation
-
-- Uses Web Audio API for real-time frequency generation
-- Sine wave oscillator for pure tone generation
-- Gain node for volume control
-- Analyser node for frequency/time-domain data
+- Web Audio API — `OscillatorNode` (sine wave) → `GainNode` → `AnalyserNode` → speakers
+- 2048-sample FFT window for time-domain waveform data
 
 ### Visualization
 
-- HTML5 Canvas for waveform rendering
-- Real-time drawing of time-domain audio data
-- Shows amplitude over time in 2048-sample windows
-- Freeze capability for explanation/teaching
+- HTML5 Canvas, real-time time-domain drawing
 - Grid overlay for reference
+- Freeze/pause captures the last waveform state
+- Simon game uses per-note color theming on the same canvas
+
+### Bluetooth
+
+- `BluetoothEngine` class wraps the Web Bluetooth API
+- `scanDevices()` calls `navigator.bluetooth.requestDevice()` with `acceptAllDevices: true`
+- `connectDevice()` connects to the GATT server and listens for disconnection events
+- Requires HTTPS or localhost; not available in all browsers
 
 ## Browser Support
 
-- Chrome/Edge 14+
-- Firefox 7+
-- Safari 6+
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-Note: Requires Web Audio API support
-
-## Learning Concepts
-
-Students can explore:
-
-- **Frequency & Pitch**: How Hz relates to how we perceive sound
-- **Human Hearing Range**: 20Hz - 20,000Hz
-- **Waveforms**: Visual representation of oscillating sound
-- **Musical Notes**: Standard pitch frequencies
-- **Frequency Characteristics**: Different frequency ranges and their properties
+- **Chrome / Edge 14+** — Audio ✅, Bluetooth ✅ (HTTPS required)
+- **Firefox 7+** — Audio ✅, Bluetooth ❌
+- **Safari 6+** — Audio ✅, Bluetooth ❌
+- **iOS Safari / Chrome Mobile** — Audio ✅, Bluetooth partial
 
 ## Customization
 
-### Adding New Default Frequencies
+### Adding Frequencies
 
-**Option 1: Use the Manager Panel** (Easiest)
+**Via Manager Panel (easiest):**
 
-1. Go to `/manager.html`
-2. Login with password: `admin123`
-3. Click "הוסף תדר חדש" (Add New Frequency)
-4. Fill in the details and submit
+1. Go to `/manager.html`, log in
+2. Click "הוסף תדר חדש", fill in details
 
-**Option 2: Edit `api.js` for Defaults**
-Edit `public/js/api.js` - in the `API.init()` method, modify the `defaultFrequencies` object:
+**Via code — edit defaults in `docs/js/api.js`:**
 
 ```javascript
 const defaultFrequencies = {
   samples: [
     { id: 11, name: "My Frequency", frequency: 1000, category: "custom" },
-    // ... more frequencies
   ],
-  categoryNames: {
-    "custom": "My Category"
-  }
+  categoryNames: { "custom": "My Category" }
 };
 ```
 
 ### Resetting to Defaults
 
-To reset all frequencies to defaults:
+Open DevTools → Application → Local Storage → delete `frequencies-data` → refresh.
 
-1. Open browser Developer Tools (F12)
-2. Go to Application → Local Storage
-3. Find `frequencies-data` and delete it
-4. Refresh the page
+### Changing Colors
 
-### Changing UI Colors
+Edit `docs/css/style.css`:
 
-Edit `public/css/style.css`:
-
-- Primary color: `#667eea` (purple)
-- Secondary color: `#764ba2` (dark purple)
-- Accent colors available for customization
+- Primary: `#667eea` (purple)
+- Secondary: `#764ba2` (dark purple)
 
 ## Troubleshooting
 
-### No Sound Playing?
+**No sound?** — Check browser audio permissions; click the page once before playing (browsers require a user gesture); check volume.
 
-- Check browser audio permissions
-- Try clicking the page first (some browsers require user interaction)
-- Check browser console for errors (F12)
-- Ensure your device volume is not muted
+**Waveform not showing?** — Audio must be playing; verify Canvas support.
 
-### Waveform Not Showing?
+**Can't log into Manager?** — Password is `admin123`, case-sensitive.
 
-- The waveform appears when audio is playing
-- Try playing a frequency first
-- Check if Canvas is supported in your browser
+**Data lost?** — localStorage doesn't persist in private/incognito mode.
 
-### Can't Log into Manager?
-
-- Default password is `admin123`
-- Password is case-sensitive
-
-### Data Lost After Closing Browser?
-
-This shouldn't happen - localStorage persists data. But if it does:
-
-- Check if localStorage is enabled in your browser settings
-- Try a different browser
-- Check if you're in private/incognito mode (data doesn't persist there)
+**Bluetooth not working?** — Requires HTTPS (or localhost) and a Chrome/Edge browser.
 
 ## GitHub Pages Deployment
 
-### Easy Setup (5 minutes)
+1. Fork this repo
+2. Settings → Pages → Source: **main** branch, **/docs** folder → Save
+3. App goes live at `https://YOUR-USERNAME.github.io/see-sound/`
 
-1. **Fork this repository** on GitHub
-2. Open your forked repository
-3. Go to **Settings → Pages**
-4. Under "Source", select **main** branch
-5. Select **/public** folder
-6. Click "Save"
-7. GitHub will deploy and show you the URL
+Changes pushed to main deploy automatically within a few minutes.
 
-Your app will be live at: `https://YOUR-USERNAME.github.io/see-sound/`
+## Learning Concepts
 
-### Custom Domain
-
-To use a custom domain:
-
-1. Go to **Settings → Pages**
-2. Under "Custom domain", enter your domain
-3. GitHub will show DNS configuration steps
-4. Update your domain's DNS records
-5. GitHub will handle the SSL certificate automatically
-
-### Automatic Deployment
-
-Changes pushed to the main branch automatically deploy within a few minutes!
-
-## Environment Info
-
-The app automatically detects its environment:
-
-- **GitHub Pages**: Uses localStorage (no server)
-- **Local with Express**: Falls back to Express API if server.js is running
-- **Other Static Hosts**: Uses localStorage (Netlify, Vercel, etc.)
-
-## Future Enhancements
-
-Potential features:
-
-- Multiple waveform types (square, sawtooth, triangle)
-- Frequency sweep visualization
-- Beat frequency demonstration
-- Sound recording and playback
-- Frequency analysis tool
-- Temperature/humidity adjustments
-- Multiuser sessions
+- **Frequency & Pitch**: Hz ↔ perceived pitch
+- **Human Hearing Range**: 20 Hz – 20,000 Hz
+- **Waveforms**: Visual representation of oscillating sound
+- **Amplitude**: Volume ↔ wave height
+- **Musical Notes**: Standard pitch frequencies and octaves
+- **Memory & Pattern Recognition**: Simon game
 
 ## License
 
-MIT License - Feel free to use and modify
+MIT License — free to use and modify.
 
 ## Author
 
-Created for educational purposes to teach frequency and sound concepts in an interactive way.
+Created for educational use at **Technoda Hadera (טכנודע חדרה)**, teaching frequency and sound concepts interactively.
 
 ---
 
-## Enjoy exploring sound frequencies! 🎵
+© 2026 לראות את הקול — טכנודע חדרה
