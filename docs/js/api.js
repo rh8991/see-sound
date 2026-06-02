@@ -27,20 +27,28 @@ const API = {
     }
   },
 
+  // Returns true when running on a static host (GitHub Pages, file://, etc.)
+  isStaticHost() {
+    const { hostname } = window.location;
+    return hostname.endsWith('github.io') || hostname === 'localhost' && window.location.pathname.startsWith('/docs');
+  },
+
   // Get all frequencies
   async getFrequencies() {
-    try {
-      // Try to fetch from server first (if Express backend is running)
-      const response = await Promise.race([
-        fetch('/api/frequencies', { method: 'GET', signal: AbortSignal.timeout(1000) }),
-        new Promise((_, reject) => setTimeout(() => reject('timeout'), 1100))
-      ]);
-      
-      if (response.ok) {
-        return await response.json();
+    if (!this.isStaticHost()) {
+      try {
+        // Try to fetch from server first (if Express backend is running)
+        const response = await Promise.race([
+          fetch('/api/frequencies', { method: 'GET', signal: AbortSignal.timeout(1000) }),
+          new Promise((_, reject) => setTimeout(() => reject('timeout'), 1100))
+        ]);
+
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (error) {
+        // Server not available, use localStorage
       }
-    } catch (error) {
-      // Server not available, use localStorage
     }
 
     // Use localStorage
@@ -64,15 +72,16 @@ const API = {
     data.samples = frequencies;
     localStorage.setItem('frequencies-data', JSON.stringify(data));
 
-    // Try to sync with server if available
-    try {
-      await fetch('/api/frequencies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, frequencies })
-      });
-    } catch (error) {
-      // Server not available, that's okay
+    if (!this.isStaticHost()) {
+      try {
+        await fetch('/api/frequencies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, frequencies })
+        });
+      } catch (error) {
+        // Server not available, that's okay
+      }
     }
 
     return { success: true, message: 'Frequencies updated' };
@@ -88,15 +97,16 @@ const API = {
     data.categoryNames = categoryNames;
     localStorage.setItem('frequencies-data', JSON.stringify(data));
 
-    // Try to sync with server if available
-    try {
-      await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, categoryNames })
-      });
-    } catch (error) {
-      // Server not available, that's okay
+    if (!this.isStaticHost()) {
+      try {
+        await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, categoryNames })
+        });
+      } catch (error) {
+        // Server not available, that's okay
+      }
     }
 
     return { success: true, message: 'Categories updated' };
@@ -120,15 +130,16 @@ const API = {
     
     localStorage.setItem('frequencies-data', JSON.stringify(data));
 
-    // Try to sync with server if available
-    try {
-      await fetch('/api/frequencies/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, name, frequency, category })
-      });
-    } catch (error) {
-      // Server not available, that's okay
+    if (!this.isStaticHost()) {
+      try {
+        await fetch('/api/frequencies/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, name, frequency, category })
+        });
+      } catch (error) {
+        // Server not available, that's okay
+      }
     }
 
     return { success: true, message: 'Frequency added' };
@@ -144,15 +155,16 @@ const API = {
     data.samples = data.samples.filter(s => s.id !== parseInt(id));
     localStorage.setItem('frequencies-data', JSON.stringify(data));
 
-    // Try to sync with server if available
-    try {
-      await fetch(`/api/frequencies/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-    } catch (error) {
-      // Server not available, that's okay
+    if (!this.isStaticHost()) {
+      try {
+        await fetch(`/api/frequencies/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+      } catch (error) {
+        // Server not available, that's okay
+      }
     }
 
     return { success: true, message: 'Frequency deleted' };
