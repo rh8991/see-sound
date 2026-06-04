@@ -7,25 +7,22 @@ class FrequencyApp {
     this.visualizer = new WaveformVisualizer('waveformCanvas');
     this.samples = [];
     this.currentFrequency = 440;
-    this.selectedCategory = 'note'; // Default category
-    this.selectedOctave = 4; // Default octave
-    this.data = null; // Store full frequency data
-    this.isResumeAvailable = false; // Track if resume action is available (only after pause, not after new sample)
+    this.selectedCategory = 'note';
+    this.selectedOctave = 4;
+    this.data = null;
+    this.isResumeAvailable = false;
+    this.superFrequencies = []; // Array of {freq, color}
+    this.superColors = ['#e74c3c','#3498db','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#2c3e50'];
+    this.superColorIndex = 0;
     this.init();
   }
 
   async init() {
-    // Load samples from server
     await this.loadSamples();
-
-    // Setup event listeners
     this.setupEventListeners();
-
-    // Setup tab switching
     this.setupTabs();
-
-    // Draw initial waveform
     this.visualizer.clear();
+    this.updateSuperpositionDisplay();
   }
 
   async loadSamples() {
@@ -132,16 +129,18 @@ class FrequencyApp {
           return;
         }
 
+        const wrapper = document.createElement('div');
+        wrapper.className = 'sample-btn-wrapper';
+
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'sample-btn';
-        
-        // Format display text based on whether it has octave info
+
         let displayText = sample.name;
         if (sample.octave !== undefined) {
           displayText = `${sample.noteSymbol}${sample.octave}`;
         }
-        
+
         btn.textContent = `${displayText}\n${sample.frequency.toFixed(2)} Hz`;
         btn.dataset.frequency = sample.frequency;
         btn.dataset.name = sample.name;
@@ -153,7 +152,20 @@ class FrequencyApp {
           this.setActiveButton(btn);
         });
 
-        buttonsDiv.appendChild(btn);
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'sample-add-super-btn';
+        addBtn.title = 'הוסף לסופרפוזיציה';
+        addBtn.textContent = '+';
+        addBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.addToSuperposition(sample.frequency);
+        });
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(addBtn);
+        buttonsDiv.appendChild(wrapper);
       });
 
       categoryDiv.appendChild(buttonsDiv);
@@ -178,10 +190,11 @@ class FrequencyApp {
 
   playSample(frequency, name) {
     this.currentFrequency = frequency;
-    
-    // No resume available when starting fresh - we're playing a new frequency
     this.isResumeAvailable = false;
-    
+
+    // Clear superposition when playing a single note exclusively
+    this.clearSuperposition();
+
     // Stop any previously paused oscillator to start fresh
     if (this.audioEngine.oscillator) {
       try {
@@ -218,6 +231,79 @@ class FrequencyApp {
 
     // Start visualization (will capture new sample)
     this.visualizer.start(this.audioEngine);
+  }
+
+  addToSuperposition(frequency) {
+    frequency = parseFloat(frequency);
+    if (!Number.isFinite(frequency) || frequency <= 0) return;
+    if (this.superFrequencies.find(item => item.freq === frequency)) return;
+
+    const color = this.superColors[this.superColorIndex % this.superColors.length];
+    this.superColorIndex++;
+    this.superFrequencies.push({ freq: frequency, color });
+
+    const volume = parseFloat(document.getElementById('volumeSlider').value) / 100;
+    this.audioEngine.addSuperOscillator(frequency, volume);
+
+    if (this.visualizer.isPaused || !this.audioEngine.isPlaying || !this.visualizer.animationId) {
+      this.visualizer.resetTime();
+      this.visualizer.isPaused = false;
+      this.visualizer.capturedSample = null;
+      this.visualizer.start(this.audioEngine);
+    }
+
+    this.updateSuperpositionDisplay();
+    this.updateFreqInfoDisplay();
+  }
+
+  removeFromSuperposition(frequency) {
+    frequency = parseFloat(frequency);
+    this.superFrequencies = this.superFrequencies.filter(item => item.freq !== frequency);
+    this.audioEngine.removeSuperOscillator(frequency);
+    this.updateSuperpositionDisplay();
+    this.updateFreqInfoDisplay();
+  }
+
+  clearSuperposition() {
+    this.superFrequencies = [];
+    this.superColorIndex = 0;
+    this.audioEngine.clearSuperOscillators();
+    this.updateSuperpositionDisplay();
+    this.updateFreqInfoDisplay();
+  }
+
+  updateSuperpositionDisplay() {
+    const list = document.getElementById('superFreqList');
+    if (!list) return;
+
+    if (this.superFrequencies.length === 0) {
+      list.innerHTML = '<span class="super-empty">לחץ + להוסיף תדרים</span>';
+      return;
+    }
+
+    list.innerHTML = '';
+    this.superFrequencies.forEach(item => {
+      const chip = document.createElement('div');
+      chip.className = 'super-chip';
+      chip.style.borderColor = item.color;
+      chip.style.color = item.color;
+      chip.innerHTML = `<span>${item.freq.toFixed(0)} Hz</span><button class="super-chip-remove" data-freq="${item.freq}" title="הסר">×</button>`;
+      chip.querySelector('.super-chip-remove').addEventListener('click', (e) => {
+        e.preventDefault();
+        this.removeFromSuperposition(item.freq);
+      });
+      list.appendChild(chip);
+    });
+  }
+
+  updateFreqInfoDisplay() {
+    const vizFreqEl = document.getElementById('vizFreqDisplay');
+    if (!vizFreqEl) return;
+    if (this.superFrequencies.length === 0) {
+      vizFreqEl.textContent = this.currentFrequency;
+    } else {
+      vizFreqEl.textContent = this.superFrequencies.map(f => f.freq.toFixed(0)).join(' + ');
+    }
   }
 
   setActiveButton(btn) {
@@ -365,49 +451,58 @@ class FrequencyApp {
     const stopBtn = document.getElementById('stopBtn');
     stopBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      
+
       if (!this.audioEngine.isPlaying) {
         console.log('Audio is not playing');
         return;
       }
-      
-      // Pause the audio by muting it
+
       this.audioEngine.stop();
-      
-      // Mark that resume is now available
       this.isResumeAvailable = true;
-      
-      // Pause the visualization and display the captured sample
+
       const volume = parseFloat(volumeSlider.value) / 100;
-      this.visualizer.pause(this.currentFrequency, volume);
-      
-      console.log(`Audio paused - Displaying captured sample at ${this.currentFrequency} Hz. Press Play to resume.`);
+      // For superposition, use captured sample (null freq triggers fallback)
+      const pauseFreq = this.superFrequencies.length === 0 ? this.currentFrequency : null;
+      this.visualizer.pause(pauseFreq, volume);
+
+      console.log(`Audio paused. Press Play to resume.`);
     });
 
-    // Clear button - Clears the paused sample
+    // Clear button - Clears audio, superposition, and visualizer
     const clearBtn = document.getElementById('clearBtn');
     clearBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      
-      // Stop any audio that might be paused
+
       if (this.audioEngine.oscillator) {
-        try {
-          this.audioEngine.oscillator.stop();
-        } catch (err) {
-          // Oscillator already stopped
-        }
+        try { this.audioEngine.oscillator.stop(); } catch (err) {}
         this.audioEngine.oscillator = null;
       }
-      
-      // Reset audio state
+
+      this.clearSuperposition();
       this.audioEngine.isPlaying = false;
       this.isResumeAvailable = false;
-      
-      // Clear the visualizer
       this.visualizer.clear();
-      
-      console.log('Sample cleared - Ready to play new frequency');
+
+      console.log('Cleared - Ready to play new frequency');
     });
+
+    // Add to superposition button (custom tab)
+    const addToSuperBtn = document.getElementById('addToSuperBtn');
+    if (addToSuperBtn) {
+      addToSuperBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.addToSuperposition(this.currentFrequency);
+      });
+    }
+
+    // Clear all superposition button
+    const clearSuperBtn = document.getElementById('clearSuperBtn');
+    if (clearSuperBtn) {
+      clearSuperBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.clearSuperposition();
+      });
+    }
 
     // Resume audio context on user interaction
     document.addEventListener('click', () => {

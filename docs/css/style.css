@@ -773,6 +773,150 @@ main {
   background: #2980b9;
 }
 
+/* Superposition Panel */
+.superposition-panel {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.super-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.super-title {
+  font-weight: 700;
+  font-size: 0.88em;
+  color: #764ba2;
+}
+
+.super-clear-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  color: #aaa;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.super-clear-btn:hover {
+  color: #e74c3c;
+}
+
+.super-freq-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 26px;
+  align-items: center;
+}
+
+.super-empty {
+  font-size: 0.78em;
+  color: #bbb;
+  font-style: italic;
+}
+
+.super-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 4px;
+  border-radius: 14px;
+  border: 2px solid;
+  background: white;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.super-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  touch-action: manipulation;
+}
+
+.super-chip-remove:hover {
+  opacity: 1;
+}
+
+/* Add to superposition button */
+.btn-add-super {
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.95em;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  transition: background 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-add-super:hover {
+  background: #229954;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+}
+
+/* Sample button wrapper for superposition "+" overlay */
+.sample-btn-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.sample-btn-wrapper .sample-btn {
+  width: 100%;
+}
+
+.sample-add-super-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: rgba(39, 174, 96, 0.88);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.9em;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 0.15s, transform 0.1s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.sample-add-super-btn:hover {
+  background: rgba(39, 174, 96, 1);
+  transform: scale(1.18);
+}
+
 /* Waveform Canvas */
 .waveform-canvas {
   flex: 1;

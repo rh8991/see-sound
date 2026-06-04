@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>לראות את הקול</title>
+    <link rel="icon" type="image/png" href="assets/images/technoda_logo.png" />
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
@@ -198,7 +199,7 @@
               >
             </div>
             <div class="info-item">
-              <span class="info-label">תדר:</span>
+              <span class="info-label">תדר(ים):</span>
               <span class="info-value"
                 ><span id="vizFreqDisplay">440</span> Hz</span
               >
@@ -262,6 +263,7 @@
                   <span id="freqDisplay" class="freq-display">440 Hz</span>
                 </div>
               </div>
+              <button id="addToSuperBtn" class="btn btn-add-super">⊕ הוסף לסופרפוזיציה</button>
             </div>
 
             <!-- Bluetooth Tab -->
@@ -305,6 +307,17 @@
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Superposition Panel -->
+          <div class="superposition-panel">
+            <div class="super-header">
+              <span class="super-title">⊕ סופרפוזיציה</span>
+              <button id="clearSuperBtn" class="super-clear-btn" title="נקה הכל">🗑️</button>
+            </div>
+            <div id="superFreqList" class="super-freq-list">
+              <span class="super-empty">לחץ + להוסיף תדרים</span>
             </div>
           </div>
 

@@ -9,6 +9,7 @@ class AudioEngine {
     this.isPlaying = false;
     this.currentFrequency = 440;
     this.pendingSuspendId = null;
+    this.superOscillators = new Map(); // String(freq) -> OscillatorNode
   }
 
   // Initialize Web Audio API
@@ -176,6 +177,57 @@ class AudioEngine {
         this.audioContext.currentTime,
         0.05,
       );
+    }
+  }
+
+  // Add a frequency to superposition (creates a separate oscillator)
+  addSuperOscillator(frequency, volume = 0.3) {
+    this.init();
+    if (this.pendingSuspendId) {
+      clearTimeout(this.pendingSuspendId);
+      this.pendingSuspendId = null;
+    }
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+    const key = String(frequency);
+    if (this.superOscillators.has(key)) return;
+
+    const osc = this.audioContext.createOscillator();
+    osc.connect(this.gainNode);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+    osc.start();
+    this.superOscillators.set(key, osc);
+
+    this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
+    this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
+    this.gainNode.gain.linearRampToValueAtTime(volume, this.audioContext.currentTime + 0.05);
+    this.isPlaying = true;
+  }
+
+  // Remove a superposition oscillator by frequency
+  removeSuperOscillator(frequency) {
+    const key = String(frequency);
+    const osc = this.superOscillators.get(key);
+    if (!osc) return;
+    try { osc.stop(); } catch(e) {}
+    try { osc.disconnect(); } catch(e) {}
+    this.superOscillators.delete(key);
+    if (this.superOscillators.size === 0 && !this.oscillator) {
+      this.isPlaying = false;
+    }
+  }
+
+  // Stop and remove all superposition oscillators
+  clearSuperOscillators() {
+    for (const osc of this.superOscillators.values()) {
+      try { osc.stop(); } catch(e) {}
+      try { osc.disconnect(); } catch(e) {}
+    }
+    this.superOscillators.clear();
+    if (!this.oscillator) {
+      this.isPlaying = false;
     }
   }
 
