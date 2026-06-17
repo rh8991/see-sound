@@ -16,6 +16,7 @@
       <!-- Header -->
       <header class="app-header">
         <div class="header-top">
+          <button id="infoBtn" class="info-btn" title="מידע">ℹ</button>
           <img src="assets/images/technoda_logo.png" alt="לוגו טכנודע" class="logo logo-end" />
           <a href="index.html" class="simon-back-link" title="חזרה לדף הבית">
             <span class="material-symbols-outlined simon-back-icon">home</span>
@@ -25,6 +26,103 @@
         </div>
         <p class="subtitle">חזור על הרצף המוזיקלי - ראה את הגל בכל צליל</p>
       </header>
+
+      <!-- Instructions Modal -->
+      <div id="introModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <div class="tour-indicator">
+            <span id="stepCounter">1 / 6</span>
+          </div>
+
+          <!-- Step 0: Welcome -->
+          <div class="tour-step active" data-step="0">
+            <h2>ברוכים הבאים למשחק סיימון!</h2>
+            <p>
+              סיימון הוא משחק זיכרון מוזיקלי. המשחק מנגן רצף של תווים, ועליך
+              לחזור עליו בסדר הנכון.
+            </p>
+            <p>
+              בכל סיבוב מתווסף תו אחד לרצף — ככל שתגיע רחוק יותר, כך הרצף
+              ארוך יותר. האם תשבור את השיא שלך?
+            </p>
+          </div>
+
+          <!-- Step 1: Listen -->
+          <div class="tour-step" data-step="1">
+            <h2>שלב 1 — האזן לרצף</h2>
+            <p>
+              לחץ על <strong>▶ התחל</strong> כדי להתחיל. המשחק ינגן את רצף
+              התווים אחד אחד.
+            </p>
+            <p>
+              כל תו מודגש בצבע ייחודי שלו — עקוב אחרי הכפתורים המאירים
+              ו<strong>האזן היטב</strong> לסדר.
+            </p>
+          </div>
+
+          <!-- Step 2: Repeat -->
+          <div class="tour-step" data-step="2">
+            <h2>שלב 2 — חזור על הרצף</h2>
+            <p>
+              לאחר שהמשחק סיים לנגן, כפתורי התווים יהפכו לפעילים — עתה תורך!
+            </p>
+            <p>
+              לחץ על הכפתורים <strong>באותו הסדר</strong> שהמשחק ניגן. כל
+              לחיצה מנגנת את התו ומציגה את הגל שלו.
+            </p>
+            <p>
+              טעות אחת מסיימת את המשחק — הישמר!
+            </p>
+          </div>
+
+          <!-- Step 3: Replay -->
+          <div class="tour-step" data-step="3">
+            <h2>כפתור "שמע שוב"</h2>
+            <p>
+              שכחת את הרצף? לחץ על <strong>↺ שמע שוב</strong> כדי לשמוע את
+              הרצף הנוכחי מחדש — ללא קנס.
+            </p>
+            <p>
+              הכפתור פעיל רק כאשר תורך לחזור על הרצף, ואינו מאפס את הסיבוב.
+            </p>
+          </div>
+
+          <!-- Step 4: Waveform -->
+          <div class="tour-step" data-step="4">
+            <h2>ויזואליזציה של הגל</h2>
+            <p>
+              בצד שמאל מוצג <strong>גל הצליל</strong> של כל תו שמנוגן — הן
+              על ידי המשחק והן על ידך.
+            </p>
+            <p>
+              כל תו הוא תדר שונה: תדר גבוה יותר = גל צפוף יותר. שים לב
+              כיצד צורת הגל משתנה בין תווים שונים.
+            </p>
+          </div>
+
+          <!-- Step 5: Score -->
+          <div class="tour-step" data-step="5">
+            <h2>לוח הניקוד</h2>
+            <p>
+              <strong>סיבוב</strong> — מספר התווים ברצף הנוכחי.
+            </p>
+            <p>
+              <strong>שיא</strong> — הרצף הארוך ביותר שהשגת (נשמר גם אחרי
+              סגירת הדף).
+            </p>
+            <p>
+              <strong>שלב</strong> — כמה תווים כבר חזרת על הרצף הנוכחי.
+            </p>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="tour-navigation">
+            <button id="prevBtn" class="nav-btn prev-btn">→ הקודם</button>
+            <button id="nextBtn" class="nav-btn next-btn">הבא ←</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Main Simon Layout -->
       <div class="simon-layout">

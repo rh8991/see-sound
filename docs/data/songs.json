@@ -1,0 +1,61 @@
+{
+  "songs": [
+    {
+      "id": "mary",
+      "name": "Mary Had a Little Lamb",
+      "nameHe": "מרי הייתה לה כבשה קטנה",
+      "notes": [
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 262, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 0, "duration": 0.3 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 0, "duration": 0.3 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 392, "duration": 0.5 },
+        { "frequency": 440, "duration": 0.5 },
+        { "frequency": 0, "duration": 0.3 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 262, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 262, "duration": 0.5 }
+      ]
+    },
+    {
+      "id": "twinkle",
+      "name": "Twinkle, Twinkle, Little Star",
+      "nameHe": "נצנוץ, נצנוץ, כוכב קטן",
+      "notes": [
+        { "frequency": 262, "duration": 0.5 },
+        { "frequency": 262, "duration": 0.5 },
+        { "frequency": 392, "duration": 0.5 },
+        { "frequency": 392, "duration": 0.5 },
+        { "frequency": 440, "duration": 0.5 },
+        { "frequency": 440, "duration": 0.5 },
+        { "frequency": 392, "duration": 1 },
+        { "frequency": 349, "duration": 0.5 },
+        { "frequency": 349, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 330, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 294, "duration": 0.5 },
+        { "frequency": 262, "duration": 1 }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ class FrequencyApp {
   constructor() {
     this.audioEngine = new AudioEngine();
     this.bluetoothEngine = new BluetoothEngine();
+    this.songPlayer = new SongPlayer(this.audioEngine);
     this.visualizer = new WaveformVisualizer('waveformCanvas');
     this.samples = [];
     this.currentFrequency = 440;
@@ -19,6 +20,7 @@ class FrequencyApp {
 
   async init() {
     await this.loadSamples();
+    await this.songPlayer.loadSongs();
     this.setupEventListeners();
     this.setupTabs();
     this.visualizer.clear();
@@ -390,12 +392,20 @@ class FrequencyApp {
     const updateVolume = (value) => {
       value = Math.max(0, Math.min(100, parseFloat(value)));
       const volumeNormalized = value / 100;
-      
+
       volumeSlider.value = value;
       volumeDisplay.textContent = `${value.toFixed(0)}%`;
 
-      // Update audio engine volume
-      this.audioEngine.setVolume(volumeNormalized);
+      // Only change gain while actually playing — don't re-activate a paused oscillator
+      if (this.audioEngine.isPlaying) {
+        this.audioEngine.setVolume(volumeNormalized);
+      }
+
+      // Redraw the paused waveform at the new volume level
+      if (this.visualizer.isPaused) {
+        const pauseFreq = this.superFrequencies.length === 0 ? this.currentFrequency : null;
+        this.visualizer.pause(pauseFreq, volumeNormalized);
+      }
     };
 
     volumeSlider.addEventListener('input', (e) => {
@@ -514,6 +524,9 @@ class FrequencyApp {
 
     // Bluetooth Controls
     this.setupBluetoothControls();
+
+    // Song Player Controls
+    this.setupSongPlayerControls();
   }
 
   setupModalControls() {
@@ -712,6 +725,123 @@ class FrequencyApp {
         }, 2000);
       }
     });
+  }
+
+  setupSongPlayerControls() {
+    const songsFabBtn = document.getElementById('songsFabBtn');
+    const songsModal = document.getElementById('songsModal');
+    const songModalCloseBtn = document.getElementById('songModalCloseBtn');
+    const nowPlayingBar = document.getElementById('nowPlayingBar');
+    const nowPlayingPauseBtn = document.getElementById('nowPlayingPauseBtn');
+    const nowPlayingStopBtn = document.getElementById('nowPlayingStopBtn');
+
+    if (this.songPlayer.songs.length === 0) return;
+
+    this.renderSongsList();
+
+    songsFabBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      songsModal.classList.toggle('show');
+    });
+
+    const closeModal = () => songsModal.classList.remove('show');
+
+    songModalCloseBtn.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && songsModal.classList.contains('show')) closeModal();
+    });
+
+    nowPlayingPauseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (this.songPlayer.isPlaying) {
+        this.songPlayer.stopSong();
+        this.visualizer.stop();
+        nowPlayingPauseBtn.textContent = '▶️';
+      } else {
+        const songId = nowPlayingPauseBtn.dataset.songId;
+        if (songId) {
+          this.songPlayer.playSong(songId);
+          this.visualizer.start(this.audioEngine);
+          nowPlayingPauseBtn.textContent = '⏸️';
+        }
+      }
+    });
+
+    nowPlayingStopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.songPlayer.stopSong();
+      this.visualizer.stop();
+      this.visualizer.clear();
+      document.querySelectorAll('.song-item').forEach(el => el.classList.remove('active'));
+      nowPlayingBar.style.display = 'none';
+    });
+
+    this.songPlayer.onSongEnd = () => {
+      this.visualizer.stop();
+      document.querySelectorAll('.song-item').forEach(el => el.classList.remove('active'));
+      nowPlayingBar.style.display = 'none';
+    };
+  }
+
+  renderSongsList() {
+    const songsList = document.getElementById('songsList');
+
+    if (this.songPlayer.isPlaying) {
+      return;
+    }
+
+    songsList.innerHTML = '';
+    this.songPlayer.getSongs().forEach(song => {
+      const songItem = document.createElement('div');
+      songItem.className = 'song-item';
+      songItem.dataset.songId = song.id;
+      songItem.innerHTML = `
+        <div class="song-name">${song.name}</div>
+        <div class="song-name-he">${song.nameHe}</div>
+      `;
+
+      songItem.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.playSongFromModal(song.id, song.name, song.nameHe);
+      });
+
+      songsList.appendChild(songItem);
+    });
+  }
+
+  playSongFromModal(songId, songName, songNameHe) {
+    const nowPlayingBar = document.getElementById('nowPlayingBar');
+    const nowPlayingBarTitle = document.getElementById('nowPlayingBarTitle');
+    const nowPlayingPauseBtn = document.getElementById('nowPlayingPauseBtn');
+
+    nowPlayingBarTitle.textContent = `♪ ${songName}`;
+    nowPlayingPauseBtn.dataset.songId = songId;
+    nowPlayingPauseBtn.textContent = '⏸️';
+    nowPlayingBar.style.display = 'flex';
+
+    // Highlight active song
+    document.querySelectorAll('.song-item').forEach(el => el.classList.remove('active'));
+    const activeItem = document.querySelector(`.song-item[data-song-id="${songId}"]`);
+    if (activeItem) activeItem.classList.add('active');
+
+    // Wire per-note frequency updates into the visualizer display
+    this.songPlayer.onNoteChange = (frequency) => {
+      if (frequency > 0) {
+        const vizFreqEl = document.getElementById('vizFreqDisplay');
+        if (vizFreqEl) vizFreqEl.textContent = frequency;
+      }
+    };
+
+    // Reset visualizer and start it so the canvas shows the song oscillation
+    this.visualizer.resetTime();
+    this.visualizer.isPaused = false;
+    this.visualizer.capturedSample = null;
+
+    this.songPlayer.playSong(songId);
+
+    // Start after playSong so the audio context is initialized
+    this.visualizer.start(this.audioEngine);
   }
 }
 

@@ -88,7 +88,6 @@ class AudioEngine {
   // Stop playing
   stop() {
     if (this.audioContext && this.gainNode) {
-      // Pause by muting the audio (don't stop oscillator)
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
       this.gainNode.gain.setValueAtTime(
         this.gainNode.gain.value,
@@ -102,36 +101,19 @@ class AudioEngine {
 
       if (this.pendingSuspendId) {
         clearTimeout(this.pendingSuspendId);
-      }
-
-      this.pendingSuspendId = setTimeout(() => {
-        if (
-          !this.isPlaying &&
-          this.audioContext &&
-          this.audioContext.state === "running"
-        ) {
-          this.audioContext.suspend();
-        }
         this.pendingSuspendId = null;
-      }, 80);
+      }
     }
   }
 
   // Resume playing (resume from pause)
-  async resume() {
-    // Resume audio context if suspended
+  resume() {
     if (this.audioContext && this.audioContext.state === "suspended") {
-      await this.audioContext.resume();
-    }
-
-    if (this.pendingSuspendId) {
-      clearTimeout(this.pendingSuspendId);
-      this.pendingSuspendId = null;
+      this.audioContext.resume();
     }
 
     if (this.audioContext && this.gainNode && this.oscillator) {
-      // Resume audio from pause by unmuting
-      const targetVolume = 0.3; // Default volume
+      const targetVolume = 0.3;
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
       this.gainNode.gain.setValueAtTime(
         this.gainNode.gain.value,

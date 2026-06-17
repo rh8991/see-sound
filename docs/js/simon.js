@@ -26,6 +26,7 @@ class SimonGame {
 
     this._buildButtons();
     this._bindUI();
+    this._setupModal();
     this.visualizer.clear();
     document.getElementById('bestDisplay').textContent = this.best;
   }
@@ -120,27 +121,40 @@ class SimonGame {
       const label  = document.getElementById('noteLabel');
 
       this.audioEngine.init();
-      this.audioEngine.play(note.freq);
-      this.audioEngine.setVolume(0.5);
+      const ctx = this.audioEngine.audioContext;
 
-      this._flashButton(noteIdx, FLASH_DURATION);
+      const start = () => {
+        this.audioEngine.play(note.freq);
+        this.audioEngine.setVolume(0.5);
 
-      canvas.style.setProperty('--active-color', note.color);
-      canvas.classList.add('active-note');
+        this._flashButton(noteIdx, FLASH_DURATION);
 
-      // Dynamic colours driven by note data — set in JS intentionally
-      label.textContent      = `${note.symbol}  ${note.nameHe}  —  ${note.freq} Hz`;
-      label.style.background = note.color + '22';
-      label.style.color      = note.textDark ? '#333' : note.color;
+        canvas.style.setProperty('--active-color', note.color);
+        canvas.classList.add('active-note');
 
-      this.visualizer.start(this.audioEngine);
+        // Dynamic colours driven by note data — set in JS intentionally
+        label.textContent      = `${note.symbol}  ${note.nameHe}  —  ${note.freq} Hz`;
+        label.style.background = note.color + '22';
+        label.style.color      = note.textDark ? '#333' : note.color;
 
-      setTimeout(() => {
-        this.audioEngine.stop();
-        this.visualizer.pause(note.freq, 0.5);
-        canvas.classList.remove('active-note');
-        resolve();
-      }, duration);
+        this.visualizer.start(this.audioEngine);
+
+        setTimeout(() => {
+          this.audioEngine.stop();
+          this.visualizer.pause(note.freq, 0.5);
+          canvas.classList.remove('active-note');
+          resolve();
+        }, duration);
+      };
+
+      // Only start the duration timer after the context is running — if stop()
+      // fires while currentTime is still 0 (suspended), cancelScheduledValues(0)
+      // wipes every gain event and the note plays silently.
+      if (ctx.state === 'running') {
+        start();
+      } else {
+        ctx.resume().then(start);
+      }
     });
   }
 
@@ -228,6 +242,49 @@ class SimonGame {
       if (i < doneCount)        dot.classList.add('done');
       else if (i === doneCount) dot.classList.add('current');
     });
+  }
+
+  _setupModal() {
+    const modal       = document.getElementById('introModal');
+    const infoBtn     = document.getElementById('infoBtn');
+    const closeBtn    = modal.querySelector('.close-btn');
+    const prevBtn     = document.getElementById('prevBtn');
+    const nextBtn     = document.getElementById('nextBtn');
+    const stepCounter = document.getElementById('stepCounter');
+
+    let currentStep = 0;
+    const totalSteps = modal.querySelectorAll('.tour-step').length;
+
+    const showStep = (step) => {
+      modal.querySelectorAll('.tour-step').forEach(el => el.classList.remove('active'));
+      const el = modal.querySelector(`.tour-step[data-step="${step}"]`);
+      if (el) el.classList.add('active');
+      stepCounter.textContent = `${step + 1} / ${totalSteps}`;
+      prevBtn.disabled = step === 0;
+      nextBtn.disabled = step === totalSteps - 1;
+      currentStep = step;
+    };
+
+    infoBtn.addEventListener('click', () => { modal.classList.add('show'); showStep(currentStep); });
+    closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+
+    nextBtn.addEventListener('click', () => { if (currentStep < totalSteps - 1) showStep(currentStep + 1); });
+    prevBtn.addEventListener('click', () => { if (currentStep > 0) showStep(currentStep - 1); });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && modal.classList.contains('show')) {
+        modal.classList.remove('show');
+      } else if (modal.classList.contains('show')) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          if (currentStep < totalSteps - 1) showStep(currentStep + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          if (currentStep > 0) showStep(currentStep - 1);
+        }
+      }
+    });
+
+    setTimeout(() => { modal.classList.add('show'); showStep(0); }, 500);
   }
 
   _sleep(ms) {
