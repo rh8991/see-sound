@@ -9,7 +9,6 @@ class FrequencyApp {
     this.samples = [];
     this.currentFrequency = 440;
     this.selectedCategory = 'note';
-    this.selectedOctave = 4;
     this.data = null;
     this.isResumeAvailable = false;
     this.superFrequencies = []; // Array of {freq, color}
@@ -68,68 +67,11 @@ class FrequencyApp {
       categoryTitle.textContent = categoryName;
       categoryDiv.appendChild(categoryTitle);
 
-      // For notes category, add octave selector with arrow controls
-      if (categoryKey === 'note') {
-        const octaveSelectorDiv = document.createElement('div');
-        octaveSelectorDiv.className = 'octave-selector';
-        
-        // Get unique octaves from notes
-        const noteOctaves = [...new Set(
-          categories['note']
-            .filter(s => s.octave !== undefined)
-            .map(s => s.octave)
-        )].sort((a, b) => a - b);
-
-        const minOctave = Math.min(...noteOctaves);
-        const maxOctave = Math.max(...noteOctaves);
-
-        // Left arrow button
-        const leftArrowBtn = document.createElement('button');
-        leftArrowBtn.type = 'button';
-        leftArrowBtn.className = 'octave-arrow-btn octave-arrow-left';
-        leftArrowBtn.textContent = '▶';
-        leftArrowBtn.title = 'אוקטבה נמוכה יותר';
-        leftArrowBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (this.selectedOctave > minOctave) {
-            this.selectedOctave--;
-            this.renderSamples(data);
-          }
-        });
-        octaveSelectorDiv.appendChild(leftArrowBtn);
-
-        // Octave display
-        const octaveDisplay = document.createElement('div');
-        octaveDisplay.className = 'octave-display';
-        octaveDisplay.textContent = `אוקטבה ${this.selectedOctave}`;
-        octaveSelectorDiv.appendChild(octaveDisplay);
-
-        // Right arrow button
-        const rightArrowBtn = document.createElement('button');
-        rightArrowBtn.type = 'button';
-        rightArrowBtn.className = 'octave-arrow-btn octave-arrow-right';
-        rightArrowBtn.textContent = '◀';
-        rightArrowBtn.title = 'אוקטבה גבוהה יותר';
-        rightArrowBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (this.selectedOctave < maxOctave) {
-            this.selectedOctave++;
-            this.renderSamples(data);
-          }
-        });
-        octaveSelectorDiv.appendChild(rightArrowBtn);
-
-        categoryDiv.appendChild(octaveSelectorDiv);
-      }
-
       const buttonsDiv = document.createElement('div');
       buttonsDiv.className = 'samples-grid';
 
       categories[categoryKey].forEach(sample => {
-        // Skip notes that don't match the selected octave
-        if (categoryKey === 'note' && sample.octave !== this.selectedOctave) {
-          return;
-        }
+        if (categoryKey === 'note' && sample.octave !== 4) return;
 
         const wrapper = document.createElement('div');
         wrapper.className = 'sample-btn-wrapper';
@@ -138,12 +80,7 @@ class FrequencyApp {
         btn.type = 'button';
         btn.className = 'sample-btn';
 
-        let displayText = sample.name;
-        if (sample.octave !== undefined) {
-          displayText = `${sample.noteSymbol}${sample.octave}`;
-        }
-
-        btn.textContent = `${displayText}\n${sample.frequency.toFixed(2)} Hz`;
+        btn.textContent = `${sample.name}\n${sample.frequency.toFixed(2)} Hz`;
         btn.dataset.frequency = sample.frequency;
         btn.dataset.name = sample.name;
         btn.dataset.category = categoryKey;
