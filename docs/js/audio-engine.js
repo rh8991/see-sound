@@ -10,6 +10,7 @@ class AudioEngine {
     this.currentFrequency = 440;
     this.pendingSuspendId = null;
     this.superOscillators = new Map(); // String(freq) -> OscillatorNode
+    this.volume = 0.3; // intended volume, separate from live gain (which may be 0 after stop)
   }
 
   // Initialize Web Audio API
@@ -55,7 +56,7 @@ class AudioEngine {
   }
 
   // Play frequency
-  play(frequency) {
+  play(frequency, volume) {
     this.init();
     if (this.pendingSuspendId) {
       clearTimeout(this.pendingSuspendId);
@@ -71,14 +72,19 @@ class AudioEngine {
       0.05,
     );
 
-    // Cancel any pending volume changes and set to target volume
+    const targetVolume = (volume !== undefined)
+      ? Math.max(0, Math.min(1, volume))
+      : this.volume;
+
+    if (volume !== undefined) this.volume = targetVolume;
+
     this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
     this.gainNode.gain.setValueAtTime(
       this.gainNode.gain.value,
       this.audioContext.currentTime,
     );
     this.gainNode.gain.linearRampToValueAtTime(
-      0.3,
+      targetVolume,
       this.audioContext.currentTime + 0.05,
     );
 
@@ -107,13 +113,18 @@ class AudioEngine {
   }
 
   // Resume playing (resume from pause)
-  resume() {
+  resume(volume) {
     if (this.audioContext && this.audioContext.state === "suspended") {
       this.audioContext.resume();
     }
 
     if (this.audioContext && this.gainNode && this.oscillator) {
-      const targetVolume = 0.3;
+      const targetVolume = (volume !== undefined)
+        ? Math.max(0, Math.min(1, volume))
+        : this.volume;
+
+      if (volume !== undefined) this.volume = targetVolume;
+
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);
       this.gainNode.gain.setValueAtTime(
         this.gainNode.gain.value,
@@ -218,6 +229,7 @@ class AudioEngine {
     if (this.gainNode && this.audioContext) {
       // Clamp volume between 0 and 1
       const clampedVolume = Math.max(0, Math.min(1, volume));
+      this.volume = clampedVolume;
 
       // Cancel scheduled values and smoothly transition to new volume
       this.gainNode.gain.cancelScheduledValues(this.audioContext.currentTime);

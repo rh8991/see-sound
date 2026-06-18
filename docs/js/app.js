@@ -208,13 +208,10 @@ class FrequencyApp {
     }
     
     // Start fresh audio
-    this.audioEngine.init();
-    this.audioEngine.play(frequency);
-
-    // Set volume from slider
     const volumeSlider = document.getElementById('volumeSlider');
     const volume = parseFloat(volumeSlider.value) / 100;
-    this.audioEngine.setVolume(volume);
+    this.audioEngine.init();
+    this.audioEngine.play(frequency, volume);
 
     // Update display
     document.getElementById('freqDisplay').textContent = `${frequency} Hz`;
@@ -419,10 +416,8 @@ class FrequencyApp {
       
       // Only resume if we explicitly paused and haven't clicked a new sample
       if (this.isResumeAvailable && !this.audioEngine.isPlaying) {
-        // Apply current volume when resuming
         const volume = parseFloat(volumeSlider.value) / 100;
-        this.audioEngine.setVolume(volume);
-        this.audioEngine.resume();
+        this.audioEngine.resume(volume);
         
         // Continue animation (will capture new samples)
         this.visualizer.start(this.audioEngine);
@@ -433,12 +428,9 @@ class FrequencyApp {
       
       // Otherwise, start a fresh frequency (shouldn't normally reach here if audio already playing)
       if (!this.audioEngine.isPlaying) {
-        this.audioEngine.init();
-        this.audioEngine.play(this.currentFrequency);
-
-        // Set volume from slider
         const volume = parseFloat(volumeSlider.value) / 100;
-        this.audioEngine.setVolume(volume);
+        this.audioEngine.init();
+        this.audioEngine.play(this.currentFrequency, volume);
 
         // Remove active class from sample buttons
         document.querySelectorAll('.sample-btn').forEach(b => {
