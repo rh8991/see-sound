@@ -1,5 +1,14 @@
 // Simon Game
 
+function _escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const NOTES = [
   { symbol: 'C', nameHe: 'דו',  freq: 261.63, color: '#e74c3c', textDark: false },
   { symbol: 'D', nameHe: 'רה',  freq: 293.66, color: '#e67e22', textDark: false },
@@ -70,6 +79,24 @@ class SimonGame {
       this._startGame();
     });
     document.addEventListener('click', () => this.audioEngine.ensureContextRunning());
+
+    // Score saving
+    document.getElementById('saveScoreBtn').addEventListener('click', () => this._onSaveScore());
+    document.getElementById('playerNameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') this._onSaveScore();
+    });
+
+    // Leaderboard open
+    const openLB = () => this._openLeaderboard();
+    document.getElementById('showLeaderboardBtnOverlay').addEventListener('click', openLB);
+    document.getElementById('leaderboardHeaderBtn').addEventListener('click', openLB);
+
+    // Leaderboard close
+    const closeLB = () => document.getElementById('leaderboardModal').classList.remove('show');
+    document.getElementById('closeLeaderboardBtn').addEventListener('click', closeLB);
+    document.getElementById('leaderboardModal').addEventListener('click', e => {
+      if (e.target.id === 'leaderboardModal') closeLB();
+    });
   }
 
   _startGame() {
@@ -214,8 +241,111 @@ class SimonGame {
     document.getElementById('overlayEmoji').textContent = '❌';
     document.getElementById('overlayMsg').textContent   =
       `טעות! הגעת לסיבוב ${this.sequence.length}`;
+
+    const saveSection = document.getElementById('scoreSaveSection');
+    if (window.simonDB) {
+      saveSection.style.display = 'flex';
+      document.getElementById('scoreSavedMsg').style.display = 'none';
+      const btn = document.getElementById('saveScoreBtn');
+      btn.disabled = false;
+      btn.textContent = '💾 שמור ניקוד';
+      document.getElementById('playerNameInput').value = '';
+      setTimeout(() => document.getElementById('playerNameInput').focus(), 300);
+    } else {
+      saveSection.style.display = 'none';
+    }
+
     document.getElementById('gameOverlay').classList.add('show');
     this._setStatus('שגיאה!');
+  }
+
+  async _onSaveScore() {
+    const input = document.getElementById('playerNameInput');
+    const name  = input.value.trim();
+    if (!name) {
+      input.classList.add('shake');
+      setTimeout(() => input.classList.remove('shake'), 450);
+      input.focus();
+      return;
+    }
+    const btn = document.getElementById('saveScoreBtn');
+    btn.disabled    = true;
+    btn.textContent = 'שומר...';
+    const ok = await this._saveScore(name, this.sequence.length);
+    if (ok) {
+      document.getElementById('scoreSaveSection').style.display = 'none';
+      document.getElementById('scoreSavedMsg').style.display    = 'block';
+    } else {
+      btn.disabled    = false;
+      btn.textContent = '💾 שמור ניקוד';
+    }
+  }
+
+  async _saveScore(name, score) {
+    if (!window.simonDB) return false;
+    try {
+      await window.simonDB.collection('simon-scores').add({
+        name,
+        score,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      return true;
+    } catch (e) {
+      console.error('[Simon] Error saving score:', e);
+      return false;
+    }
+  }
+
+  async _openLeaderboard() {
+    const modal = document.getElementById('leaderboardModal');
+    document.getElementById('leaderboardList').innerHTML =
+      '<p class="leaderboard-loading">טוען...</p>';
+    modal.classList.add('show');
+    const scores = await this._loadLeaderboard();
+    this._renderLeaderboard(scores);
+  }
+
+  async _loadLeaderboard() {
+    if (!window.simonDB) return null;
+    try {
+      const snap = await window.simonDB
+        .collection('simon-scores')
+        .orderBy('score', 'desc')
+        .limit(10)
+        .get();
+      return snap.docs.map(d => d.data());
+    } catch (e) {
+      console.error('[Simon] Error loading leaderboard:', e);
+      return null;
+    }
+  }
+
+  _renderLeaderboard(scores) {
+    const container = document.getElementById('leaderboardList');
+    if (!scores) {
+      container.innerHTML =
+        '<p class="leaderboard-empty">Firebase לא מוגדר — ערוך את <code>firebase-config.js</code></p>';
+      return;
+    }
+    if (scores.length === 0) {
+      container.innerHTML =
+        '<p class="leaderboard-empty">אין ניקודים עדיין — היה הראשון! 🎵</p>';
+      return;
+    }
+    const medals = ['🥇', '🥈', '🥉'];
+    const rows = scores.map((s, i) => `
+      <tr class="leaderboard-row rank-${i + 1}">
+        <td class="rank-cell">${medals[i] || (i + 1)}</td>
+        <td class="name-cell">${_escHtml(s.name)}</td>
+        <td class="score-cell">${s.score}</td>
+      </tr>`).join('');
+    container.innerHTML = `
+      <table class="leaderboard-table">
+        <thead>
+          <tr><th>#</th><th>שם</th><th>ניקוד</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
   }
 
   _setListening(on) {

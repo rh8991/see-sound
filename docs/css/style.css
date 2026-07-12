@@ -369,7 +369,7 @@ html, body {
   flex-direction: column;
   background: white;
   border-radius: 8px;
-  padding: 15px;
+  padding: 10px;
   border: 2px solid #764ba2;
   overflow: hidden;
 }
@@ -378,20 +378,20 @@ html, body {
 .tabs-header {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   border-bottom: 2px solid #eee;
   flex-shrink: 0;
 }
 
 .tab-btn {
-  padding: 12px 16px;
+  padding: 7px 12px;
   border: none;
   background: transparent;
   color: #666;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 0.95em;
   font-weight: 600;
-  min-height: 48px;
+  min-height: 38px;
   border-bottom: 3px solid transparent;
   transition: all 0.3s ease;
   white-space: nowrap;
@@ -429,22 +429,22 @@ html, body {
 /* Category Tabs within Notes Tab */
 .category-tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 15px;
+  gap: 6px;
+  margin-bottom: 8px;
   flex-shrink: 0;
   overflow-x: auto;
 }
 
 .category-btn {
-  padding: 11px 16px;
+  padding: 6px 12px;
   border: 2px solid #ddd;
   background: white;
   color: #666;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.95em;
+  font-size: 0.9em;
   font-weight: 600;
-  min-height: 46px;
+  min-height: 34px;
   white-space: nowrap;
   transition: all 0.3s ease;
 }
@@ -499,24 +499,24 @@ main {
 .samples-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 7px;
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 10px;
+  padding-bottom: 6px;
 }
 
 .sample-btn {
-  padding: 14px 10px;
+  padding: 8px 8px;
   border: 2px solid #667eea;
   background: white;
   color: #667eea;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 0.95em;
   transition: all 0.3s ease;
   font-weight: 600;
   direction: rtl;
-  min-height: 72px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -552,18 +552,49 @@ main {
 /* Custom Frequency Control */
 .custom-frequency-control {
   background: #f8f9fa;
-  padding: 15px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 15px;
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   direction: rtl;
 }
 
 .custom-frequency-control label {
   font-weight: 600;
   color: #333;
+  font-size: 0.85em;
+}
+
+/* Volume slider inline: label | slider | value on one row */
+.volume-control-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row;
+  padding: 7px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 5px;
+  direction: rtl;
+}
+
+.volume-control-row label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85em;
+  flex-shrink: 0;
+}
+
+.volume-control-row .slider-wrapper {
+  flex: 1;
+}
+
+.volume-control-row .freq-display {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: left;
   font-size: 0.9em;
 }
 
@@ -630,11 +661,16 @@ main {
 /* Control Buttons */
 .control-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: center;
   flex-shrink: 0;
   margin-top: auto;
+}
+
+.control-buttons .btn {
+  min-height: 42px;
+  padding: 8px 12px;
 }
 
 .btn {
@@ -738,8 +774,8 @@ main {
 .superposition-panel {
   background: #f8f9fa;
   border-radius: 6px;
-  padding: 8px 12px;
-  margin-bottom: 10px;
+  padding: 5px 10px;
+  margin-bottom: 5px;
   border: 1px solid #e0e0e0;
   flex-shrink: 0;
 }
@@ -2574,3 +2610,129 @@ footer p {
     display: none;
   }
 }
+
+/* ============================================================
+   Simon — Leaderboard & Score Save
+   ============================================================ */
+
+/* Leaderboard button in game header */
+.simon-leaderboard-btn {
+  background: none;
+  border: 2px solid #764ba2;
+  border-radius: 8px;
+  color: #764ba2;
+  padding: 5px 11px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  line-height: 1;
+}
+
+.simon-leaderboard-btn:hover {
+  background: #764ba2;
+  color: white;
+}
+
+/* Leaderboard open button (orange, in overlay) */
+.btn-leaderboard-open {
+  background: #f39c12;
+  color: white;
+  margin-top: 4px;
+}
+
+.btn-leaderboard-open:hover {
+  background: #d68910;
+  box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+}
+
+/* Score save section inside the game-over overlay */
+.score-save-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.player-name-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  text-align: center;
+  direction: rtl;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.player-name-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
+}
+
+.player-name-input.shake {
+  animation: inputShake 0.4s ease;
+}
+
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-5px); }
+  80%       { transform: translateX(5px); }
+}
+
+.score-saved-msg {
+  color: #27ae60;
+  font-weight: 700;
+  text-align: center;
+  font-size: 1em;
+  padding: 4px 0;
+}
+
+/* Leaderboard modal */
+.leaderboard-modal-content {
+  max-width: 460px;
+}
+
+.leaderboard-loading,
+.leaderboard-empty {
+  text-align: center;
+  color: #888;
+  padding: 28px 20px;
+  font-size: 1.05em;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  direction: rtl;
+}
+
+.leaderboard-table thead tr th {
+  background: #667eea;
+  color: white;
+  padding: 10px 14px;
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.leaderboard-table thead tr th:first-child { border-radius: 8px 0 0 0; }
+.leaderboard-table thead tr th:last-child  { border-radius: 0 8px 0 0; }
+
+.leaderboard-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.leaderboard-row.rank-1 td { background: #fff8e1; }
+.leaderboard-row.rank-2 td { background: #f5f5f5; }
+.leaderboard-row.rank-3 td { background: #fff3e0; }
+
+.rank-cell  { font-size: 1.3em; width: 50px; }
+.name-cell  { text-align: right; font-weight: 600; }
+.score-cell { font-size: 1.2em; font-weight: 700; color: #667eea; width: 70px; }

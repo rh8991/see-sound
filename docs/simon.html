@@ -140,12 +140,19 @@
             <div class="simon-overlay-box">
               <h3 id="overlayEmoji">❌</h3>
               <p id="overlayMsg">טעות! נסה שוב</p>
+              <div id="scoreSaveSection" class="score-save-section" style="display:none">
+                <input type="text" id="playerNameInput" class="player-name-input" placeholder="הכנס את שמך..." maxlength="20" autocomplete="off" />
+                <button class="btn btn-add" id="saveScoreBtn">💾 שמור ניקוד</button>
+                <p id="scoreSavedMsg" class="score-saved-msg" style="display:none">✓ הניקוד נשמר!</p>
+              </div>
               <button class="btn btn-play" id="overlayRestartBtn">▶ שחק שוב</button>
+              <button class="btn btn-leaderboard-open" id="showLeaderboardBtnOverlay">🏆 לוח ניקוד</button>
             </div>
           </div>
 
           <div class="simon-header">
             <span class="simon-title">🎹 סיימון</span>
+            <button class="simon-leaderboard-btn" id="leaderboardHeaderBtn" title="לוח ניקוד">🏆</button>
           </div>
 
           <div class="simon-score-box">
@@ -181,6 +188,20 @@
       </footer>
     </div>
 
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" class="modal">
+      <div class="modal-content leaderboard-modal-content">
+        <span class="close-btn" id="closeLeaderboardBtn">&times;</span>
+        <h2>🏆 לוח הניקוד</h2>
+        <div id="leaderboardList">
+          <p class="leaderboard-loading">טוען...</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script src="js/audio-engine.js"></script>
     <script src="js/simon.js"></script>
   </body>
