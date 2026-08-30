@@ -9,7 +9,7 @@ const PORT = 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("docs"));
+app.use(express.static("docs", { index: false }));
 
 // Data file path
 const dataDir = path.join(__dirname, "docs/data");
@@ -48,9 +48,9 @@ if (!fs.existsSync(frequenciesFile)) {
 
 // Routes
 
-// Serve index.html for root path
+// Serve intro.html for root path
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "docs", "index.html"));
+  res.sendFile(path.join(__dirname, "docs", "intro.html"));
 });
 
 // Get all frequencies
