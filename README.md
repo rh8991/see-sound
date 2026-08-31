@@ -11,6 +11,7 @@ An interactive web laboratory for exploring sound frequencies, built for educati
 - **Octave Navigation**: Step through octaves (◀ ▶) on the musical notes tab
 - **Bluetooth Tab**: Scan for and connect to nearby Bluetooth devices via the Web Bluetooth API
 - **Simon Game**: Memory game (`simon.html`) — repeat a growing sequence of musical notes while watching each note's waveform
+- **Spectrometer**: Live microphone analysis (`spectrum.html`) — sing or play a note and watch its frequency spectrum, fundamental, harmonics, and tuning in real time
 - **Guided Tour**: 9-step intro modal explaining waves, controls, and all tabs
 - **Manager Panel**: Password-protected admin page to add, edit, and delete frequency samples and categories
 - **Hebrew & RTL Support**: Full right-to-left interface
@@ -28,6 +29,7 @@ see-sound/
 ├── docs/                     # GitHub Pages root (served to browser)
 │   ├── index.html            # Main student interface
 │   ├── simon.html            # Simon memory game
+│   ├── spectrum.html         # Live microphone spectrometer
 │   ├── manager.html          # Manager / admin panel
 │   ├── css/
 │   │   └── style.css         # Stylesheet with RTL support
@@ -39,6 +41,7 @@ see-sound/
 │       ├── api.js            # Data abstraction (localStorage / Express)
 │       ├── app.js            # Main student app logic
 │       ├── simon.js          # Simon game logic
+│       ├── spectrum.js       # Spectrometer — mic capture, FFT display, pitch detection
 │       └── manager.js        # Manager panel logic
 └── README.md
 ```
@@ -75,6 +78,19 @@ A Hebrew Simon Says memory game using the 7 musical notes (C D E F G A B). The g
 - **↺ שמע שוב** — replay the current sequence
 - Back link returns to `index.html`
 
+### Spectrometer (`spectrum.html`)
+
+Live frequency-domain analysis of the microphone input — the counterpart to the time-domain waveform on the main page. Reached from the ספקטרומטר FAB on `index.html`.
+
+- Log-scale FFT spectrum (8192-point) drawn on canvas, with frequency grid, octave (דו) markers, and an optional peak-hold envelope
+- Fundamental detected with normalized autocorrelation (octave-error resistant, works even when the fundamental is weak) and marked in red on the graph
+- Big note readout (Hebrew + scientific pitch, e.g. `לה` / `A4`) with a cents tuner bar and an input-level meter
+- Settings: display range (1k / 2k / 5k / 20k Hz), sensitivity, peak hold, note markers
+- **❄️ הקפא** freezes the display; the mic is released automatically when the page is hidden
+- ℹ opens a 6-step guided tour; back link returns to `index.html`
+
+Requires microphone permission and a secure context (`https://` or `localhost`); Hebrew error messages cover denied permission, no device, busy device, and insecure origin.
+
 ### Manager Panel (`manager.html`)
 
 Password-protected admin interface.
@@ -109,6 +125,7 @@ Server starts on `http://localhost:3000`.
 
 - Student interface: `http://localhost:3000`
 - Simon game: `http://localhost:3000/simon.html`
+- Spectrometer: `http://localhost:3000/spectrum.html`
 - Manager panel: `http://localhost:3000/manager.html`
 
 The Express backend (`server.js`) is optional. The app works fully with just localStorage.

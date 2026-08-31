@@ -9,7 +9,45 @@ const PORT = 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("docs", { index: false }));
+
+// Absolute path to the web root, so everything works no matter which
+// directory the server was started from.
+const docsDir = path.join(__dirname, "docs");
+
+// ── HTML page routes ──────────────────────────────────────────────────────
+// Registered BEFORE express.static so every page is served by this handler
+// (with no-store headers) rather than as a cacheable static file. This keeps
+// links between pages consistent and stops a stale browser/proxy cache from
+// showing the intro page for every route.
+//
+//   file            served at
+//   intro.html      /            /intro       /intro.html
+//   index.html      /lab         /index       /index.html
+//   simon.html      /simon       /simon.html
+//   spectrum.html   /spectrum    /spectrum.html
+//   manager.html    /manager     /manager.html
+const pageFiles = ["intro", "index", "simon", "spectrum", "manager"];
+
+const sendPage = (file) => (req, res) => {
+  res.set("Cache-Control", "no-store, must-revalidate");
+  res.sendFile(path.join(docsDir, `${file}.html`), {
+    etag: false,
+    lastModified: false,
+  });
+};
+
+// "/" is the intro/landing page; "/lab" is a friendly alias for index.html
+app.get("/", sendPage("intro"));
+app.get("/lab", sendPage("index"));
+
+pageFiles.forEach((file) => {
+  app.get(`/${file}`, sendPage(file)); // e.g. /simon
+  app.get(`/${file}.html`, sendPage(file)); // e.g. /simon.html
+});
+
+// Static assets (css, js, images, data). index:false so "/" stays with the
+// route above.
+app.use(express.static(docsDir, { index: false }));
 
 // Data file path
 const dataDir = path.join(__dirname, "docs/data");
@@ -46,12 +84,7 @@ if (!fs.existsSync(frequenciesFile)) {
   );
 }
 
-// Routes
-
-// Serve intro.html for root path
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "docs", "intro.html"));
-});
+// ── API routes ───────────────────────────────────────────────────────────
 
 // Get all frequencies
 app.get("/api/frequencies", (req, res) => {
@@ -161,7 +194,10 @@ app.delete("/api/frequencies/:id", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`🎵 See-Sound app running at http://localhost:${PORT}`);
-  console.log(`📚 Student interface: http://localhost:${PORT}`);
-  console.log(`⚙️  Manager panel: http://localhost:${PORT}/manager.html`);
+  console.log(`📖 Intro / landing:   http://localhost:${PORT}/`);
+  console.log(`📚 Student lab:        http://localhost:${PORT}/lab`);
+  console.log(`🎹 Simon game:        http://localhost:${PORT}/simon`);
+  console.log(`🎤 Spectrometer:      http://localhost:${PORT}/spectrum`);
+  console.log(`⚙️  Manager panel:     http://localhost:${PORT}/manager`);
   console.log(`🔐 Default password: admin123 (change this!)`);
 });

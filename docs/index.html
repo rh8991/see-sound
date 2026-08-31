@@ -3,12 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+      /* Self-heal: a Service Worker or cache left by another app on this host can
+         hijack every navigation and pin one stale page. Clear it once, then
+         reload. Harmless when there is nothing to clear. */
+      (function () {
+        try {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (rs) {
+              if (!rs.length) return;
+              rs.forEach(function (r) { r.unregister(); });
+              if (window.caches) {
+                caches.keys()
+                  .then(function (ks) {
+                    return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+                  })
+                  .then(function () { location.reload(); });
+              } else {
+                location.reload();
+              }
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>לראות את הקול</title>
     <link rel="icon" type="image/png" href="assets/images/technoda_logo.png" />
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=gamepad_circle_up,music_note,music_note_2,play_circle"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=gamepad_circle_up,graphic_eq,music_note,music_note_2,play_circle"
     />
   </head>
   <body>
@@ -368,6 +392,12 @@
           >gamepad_circle_up</span
         >
         <span class="simon-fab-label">סיימון</span>
+      </a>
+
+      <!-- Spectrometer FAB -->
+      <a href="spectrum.html" class="spectro-fab" title="עבור לספקטרומטר">
+        <span class="material-symbols-outlined spectro-fab-icon">graphic_eq</span>
+        <span class="spectro-fab-label">ספקטרומטר</span>
       </a>
 
       <!-- Songs FAB -->

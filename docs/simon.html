@@ -3,6 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+      /* Self-heal: a Service Worker or cache left by another app on this host can
+         hijack every navigation and pin one stale page. Clear it once, then
+         reload. Harmless when there is nothing to clear. */
+      (function () {
+        try {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (rs) {
+              if (!rs.length) return;
+              rs.forEach(function (r) { r.unregister(); });
+              if (window.caches) {
+                caches.keys()
+                  .then(function (ks) {
+                    return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+                  })
+                  .then(function () { location.reload(); });
+              } else {
+                location.reload();
+              }
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>סיימון - לראות את הקול</title>
     <link rel="icon" type="image/png" href="assets/images/technoda_logo.png" />
     <link rel="stylesheet" href="css/style.css" />

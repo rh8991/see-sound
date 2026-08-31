@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+      /* Self-heal: a Service Worker or cache left by another app on this host can
+         hijack every navigation and pin one stale page. Clear it once, then
+         reload. Harmless when there is nothing to clear. */
+      (function () {
+        try {
+          if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (rs) {
+              if (!rs.length) return;
+              rs.forEach(function (r) { r.unregister(); });
+              if (window.caches) {
+                caches.keys()
+                  .then(function (ks) {
+                    return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+                  })
+                  .then(function () { location.reload(); });
+              } else {
+                location.reload();
+              }
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <title>ספקטרומטר - לראות את הקול</title>
+    <link rel="icon" type="image/png" href="assets/images/technoda_logo.png" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=home"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-top">
+          <button id="infoBtn" class="info-btn" title="מידע">ℹ</button>
+          <h1>🎤 ספקטרומטר</h1>
+          <img
+            src="assets/images/technoda_logo.png"
+            alt="לוגו טכנודע"
+            class="logo"
+          />
+        </div>
+        <p class="subtitle">שירו או נגנו לתוך המיקרופון - וראו את התדרים בזמן אמת</p>
+      </header>
+
+      <!-- Introduction Modal - Guided Tour -->
+      <div id="introModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <div class="tour-indicator">
+            <span id="stepCounter">1 / 6</span>
+          </div>
+
+          <!-- Step 0: Welcome -->
+          <div class="tour-step active" data-step="0">
+            <h2>ברוכים הבאים לספקטרומטר</h2>
+            <p>
+              הספקטרומטר מקשיב למיקרופון של הטלפון או המחשב ומראה
+              <strong>אילו תדרים נמצאים בצליל</strong> שאתם משמיעים - בזמן אמת.
+            </p>
+            <p>
+              שירו, שרקו, נגנו בגיטרה או בחליל - וראו איך הצליל שלכם נראה מבפנים.
+            </p>
+          </div>
+
+          <!-- Step 1: Time vs frequency -->
+          <div class="tour-step" data-step="1">
+            <h2>מתחום הזמן לתחום התדר</h2>
+            <p>
+              בדף הראשי ראיתם את <strong>גל הקול</strong> - איך הלחץ עולה ויורד לאורך הזמן.
+            </p>
+            <p>
+              כאן אנחנו שואלים שאלה אחרת: <strong>מאילו תדרים מורכב הצליל?</strong>
+              המחשב מפרק את הגל לתדרים שמרכיבים אותו (בשיטה שנקראת התמרת פורייה),
+              ומצייר עמודה לכל תדר.
+            </p>
+            <p>
+              עמודה גבוהה = יש הרבה מהתדר הזה בצליל.
+            </p>
+          </div>
+
+          <!-- Step 2: Microphone permission -->
+          <div class="tour-step" data-step="2">
+            <h2>שלב 1 - הפעלת המיקרופון</h2>
+            <p>
+              לחצו על <strong>🎤 התחל האזנה</strong>. הדפדפן יבקש
+              <strong>הרשאה למיקרופון</strong> - יש לאשר.
+            </p>
+            <p>
+              ההקלטה נשארת במכשיר שלכם בלבד ואינה נשמרת או נשלחת לשום מקום.
+            </p>
+            <p>
+              בטלפון מומלץ להתרחק מרעש רקע ולהחזיק את המכשיר קרוב למקור הצליל.
+            </p>
+          </div>
+
+          <!-- Step 3: Reading the graph -->
+          <div class="tour-step" data-step="3">
+            <h2>שלב 2 - קריאת הגרף</h2>
+            <p>
+              הציר האופקי הוא <strong>התדר</strong> (Hz) - משמאל תדרים נמוכים (צליל עמוק)
+              ומימין תדרים גבוהים (צליל חד).
+            </p>
+            <p>
+              הציר האנכי הוא <strong>העוצמה</strong> - כמה חזק כל תדר.
+            </p>
+            <p>
+              הפס האדום מסמן את <strong>תדר היסוד</strong> - התדר שקובע את גובה הצליל.
+              הפסגות שמימין לו הן <strong>הרמוניות</strong> - כפולות שלמות שלו, והן אלה
+              שנותנות לכל כלי נגינה את הצבע הייחודי שלו.
+            </p>
+          </div>
+
+          <!-- Step 4: Note detection -->
+          <div class="tour-step" data-step="4">
+            <h2>שלב 3 - זיהוי התו והכוונון</h2>
+            <p>
+              האפליקציה מזהה את התו הקרוב ביותר לצליל שלכם ומציגה אותו בגדול,
+              יחד עם התדר המדויק בהרץ.
+            </p>
+            <p>
+              <strong>מד הכוונון</strong> מראה כמה אתם רחוקים מהתו המדויק, ביחידות
+              "סנט" (מאית של חצי טון). כשהמחוון במרכז והופך לירוק - אתם מכוונים!
+            </p>
+          </div>
+
+          <!-- Step 5: Settings -->
+          <div class="tour-step" data-step="5">
+            <h2>הגדרות וכפתורים</h2>
+            <p>
+              <strong>טווח תדרים</strong> - עד איזה תדר להציג. לתווים מוזיקליים מספיק
+              2,000 Hz; לשריקות ולצלילים חדים בחרו טווח גדול יותר.
+            </p>
+            <p>
+              <strong>רגישות</strong> - העלו אם הגרף נראה ריק, הורידו אם יש יותר מדי רעש.
+            </p>
+            <p>
+              <strong>❄️ הקפא</strong> - עוצר את התמונה על המסך כדי לבחון אותה בנחת.
+              <strong>שמירת שיא</strong> - משאיר קו שמסמן את השיא של כל תדר.
+            </p>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="tour-navigation">
+            <button id="prevBtn" class="nav-btn prev-btn">→ הקודם</button>
+            <button id="nextBtn" class="nav-btn next-btn">הבא ←</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Layout: Two Columns -->
+      <div class="spectrum-layout">
+        <!-- LEFT COLUMN: Spectrum Visualization -->
+        <div class="spectrum-viz-panel">
+          <h2>ספקטרום התדרים</h2>
+          <div class="spectrum-canvas-wrap">
+            <canvas id="spectrumCanvas" class="spectrum-canvas"></canvas>
+
+            <div id="micOverlay" class="mic-overlay">
+              <div class="mic-overlay-box">
+                <span class="mic-overlay-icon">🎤</span>
+                <p id="micOverlayMsg">לחצו על "התחל האזנה" כדי להפעיל את המיקרופון</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="canvas-info">
+            <div class="info-item">
+              <span class="info-label">תדר יסוד:</span>
+              <span class="info-value"><span id="baseFreqDisplay">—</span> Hz</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">תדר בולט:</span>
+              <span class="info-value"><span id="peakFreqDisplay">—</span> Hz</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Note Readout & Controls -->
+        <div class="spectrum-controls-panel">
+          <!-- Mic status -->
+          <div class="mic-status" id="micStatus">
+            <span class="mic-status-dot" id="micStatusDot"></span>
+            <span id="micStatusText">המיקרופון כבוי</span>
+          </div>
+
+          <!-- Detected note card -->
+          <div class="note-card">
+            <div class="note-card-he" id="noteHeDisplay">—</div>
+            <div class="note-card-en"><span id="noteEnDisplay">—</span></div>
+
+            <!-- Tuner -->
+            <div class="tuner">
+              <div class="tuner-scale">
+                <span class="tuner-edge">♭ נמוך</span>
+                <span class="tuner-edge">גבוה ♯</span>
+              </div>
+              <div class="tuner-bar">
+                <div class="tuner-center"></div>
+                <div class="tuner-needle" id="tunerNeedle"></div>
+              </div>
+              <div class="tuner-cents" id="centsDisplay">נגנו או שירו כדי לזהות תו</div>
+            </div>
+          </div>
+
+          <!-- Level meter -->
+          <div class="level-row">
+            <span class="level-label">עוצמת קלט</span>
+            <div class="level-track"><div class="level-fill" id="levelFill"></div></div>
+          </div>
+
+          <!-- Settings -->
+          <div class="spectrum-settings">
+            <div class="setting-row">
+              <label for="rangeSelect">טווח תדרים</label>
+              <select id="rangeSelect" class="spectrum-select">
+                <option value="1000">עד 1,000 Hz</option>
+                <option value="2000" selected>עד 2,000 Hz</option>
+                <option value="5000">עד 5,000 Hz</option>
+                <option value="20000">עד 20,000 Hz</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <label for="sensitivitySlider">רגישות</label>
+              <div class="slider-wrapper">
+                <input
+                  type="range"
+                  id="sensitivitySlider"
+                  min="0"
+                  max="100"
+                  value="55"
+                  class="frequency-slider"
+                />
+              </div>
+              <span id="sensitivityDisplay" class="freq-display">55%</span>
+            </div>
+
+            <div class="setting-row toggles-row">
+              <label class="toggle-chip">
+                <input type="checkbox" id="peakHoldToggle" />
+                <span>שמירת שיא</span>
+              </label>
+              <label class="toggle-chip">
+                <input type="checkbox" id="notesToggle" checked />
+                <span>סימוני תווים</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <div id="micError" class="error-message" style="display: none"></div>
+
+          <!-- Control Buttons -->
+          <div class="control-buttons">
+            <button id="micToggleBtn" class="btn btn-play">🎤 התחל האזנה</button>
+            <button id="freezeBtn" class="btn btn-stop" disabled>❄️ הקפא</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back to home -->
+      <a href="index.html" class="simon-back-link" title="חזרה לדף הבית">
+        <span class="material-symbols-outlined simon-back-icon">home</span>
+        <span>דף הבית</span>
+      </a>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>&copy; 2026 לראות את הקול - טכנודע חדרה</p>
+      </footer>
+    </div>
+
+    <script src="js/spectrum.js"></script>
+  </body>
+</html>
