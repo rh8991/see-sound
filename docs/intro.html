@@ -155,6 +155,83 @@
   }
   @media (prefers-reduced-motion: reduce){ .lw-dot{ animation:none; } }
 
+  /* ── Live microphone scope (section 04) ─────────────────────────── */
+  .scope{
+    background:#0B1428; color:#E6ECFA; border-radius:20px;
+    padding:18px; border:1px solid #22325a;
+    box-shadow:0 10px 30px rgba(19,35,71,0.25);
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .scope-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .scope-btn{
+    font-family:'Rubik',sans-serif; font-weight:700; font-size:16px;
+    border:2px solid #34477a; background:#16244a; color:#fff;
+    padding:10px 18px; border-radius:12px; cursor:pointer; min-height:46px;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .scope-btn:hover{ border-color:#5a72b0; }
+  .scope-btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+  .scope-btn.primary{ background:var(--teal); border-color:var(--teal); color:#062a26; }
+  .scope-btn.primary.on{ background:var(--coral); border-color:var(--coral); color:#3a0d07; }
+  .scope-btn.on{ background:var(--amber); border-color:var(--amber); color:var(--navy); }
+  .scope-seg{ display:inline-flex; border:2px solid #34477a; border-radius:12px; overflow:hidden; }
+  .scope-seg button{
+    font-family:'Rubik',sans-serif; font-weight:700; font-size:16px;
+    background:#16244a; color:#B9C4E0; border:none; padding:10px 18px;
+    cursor:pointer; min-height:42px;
+  }
+  .scope-seg button[aria-pressed="true"]{ background:#3DFFB0; color:#062a1c; }
+  .scope-seg button:focus-visible{ outline:3px solid var(--amber); outline-offset:-3px; }
+  .scope-spacer{ flex:1 1 auto; }
+  .scope-field{ display:flex; align-items:center; gap:8px; font-size:15px; color:#B9C4E0; }
+  .scope-field input[type=range]{ width:120px; accent-color:#3DFFB0; }
+  .scope-screen{
+    position:relative; width:100%; aspect-ratio:16/8; min-height:240px;
+    background:#03100A; border-radius:14px; overflow:hidden;
+    border:2px solid #1b3a2c;
+    box-shadow:inset 0 0 40px rgba(61,255,176,0.08);
+  }
+  .scope-screen canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .scope-readout{
+    position:absolute; top:12px; right:12px; display:flex; gap:8px; flex-wrap:wrap;
+    pointer-events:none; direction:rtl;
+  }
+  .scope-chip{
+    background:rgba(3,16,10,0.75); border:1px solid #1f5a40; color:#3DFFB0;
+    font-family:'Rubik',sans-serif; font-weight:700; font-size:15px;
+    padding:4px 12px; border-radius:999px;
+  }
+  .scope-chip.freeze{ color:var(--amber); border-color:var(--amber-dark); }
+  .scope-msg{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:24px; font-size:20px; font-weight:500; color:#B9F5DC;
+    pointer-events:none;
+  }
+  .scope-msg[hidden]{ display:none; }
+  .scope-msg.err{ color:#FFB4A9; }
+  .scope-hint{ font-size:14px; color:#8f9bc0; margin:0; }
+  .scope-hint kbd{
+    font-family:'Rubik',sans-serif; background:#16244a; border:1px solid #34477a;
+    border-radius:6px; padding:0 6px; color:#fff;
+  }
+
+  /* Fullscreen: the screen grows to fill the projector */
+  .scope.is-full{
+    position:fixed; inset:0; z-index:200; border-radius:0; border:none;
+    padding:14px 18px; height:100vh; height:100dvh;
+  }
+  .scope.is-full .scope-screen{ flex:1 1 auto; aspect-ratio:auto; min-height:0; }
+  .scope.is-full .scope-chip{ font-size:22px; padding:6px 16px; }
+  .scope.is-full .scope-hint{ display:none; }
+  body.scope-lock{ overflow:hidden; }
+
+  @media (max-width:640px){
+    .scope{ padding:12px; }
+    .scope-btn, .scope-seg button{ font-size:15px; padding:9px 13px; }
+    .scope-screen{ aspect-ratio:4/3; }
+    .scope-field input[type=range]{ width:90px; }
+  }
+
   footer{ text-align:center; padding:26px; color:#9096a8; font-size:13px; }
 </style>
 </head>
@@ -300,6 +377,41 @@
     </div>
   </section>
 
+  <section class="section">
+    <span class="eyebrow">04</span>
+    <h2>בואו נראה את הקול שלנו</h2>
+    <p class="lede">מדברים אל המיקרופון ורואים את הגל בזמן אמת, כמו ב<b>אוסצילוסקופ</b>. בתצוגת <b>זמן</b> רואים איך לחץ האוויר עולה ויורד. בתצוגת <b>תדר</b> מגלים שגם צליל אחד של הקול שלנו בנוי מ<b>הרבה תדרים יחד</b>. נסו להשוות לצליל טהור: לו יש תדר אחד בלבד.</p>
+
+    <div class="scope" id="scope">
+      <div class="scope-bar">
+        <button class="scope-btn primary" id="scope-mic" type="button">🎤 הפעלת מיקרופון</button>
+        <div class="scope-seg" role="group" aria-label="סוג תצוגה">
+          <button type="button" id="scope-mode-time" aria-pressed="true">〰️ זמן</button>
+          <button type="button" id="scope-mode-freq" aria-pressed="false">📊 תדר</button>
+        </div>
+        <button class="scope-btn" id="scope-freeze" type="button" aria-pressed="false">⏸ הקפאה</button>
+        <button class="scope-btn" id="scope-tone" type="button" aria-pressed="false">🔔 צליל טהור</button>
+        <span class="scope-spacer"></span>
+        <label class="scope-field">הגברה
+          <input type="range" id="scope-gain" min="1" max="20" step="0.5" value="4" aria-label="הגברה">
+        </label>
+        <label class="scope-field" id="scope-span-wrap">טווח
+          <input type="range" id="scope-span" min="5" max="60" step="1" value="20" aria-label="טווח זמן במילישניות">
+        </label>
+        <button class="scope-btn" id="scope-full" type="button">⛶ מסך מלא</button>
+      </div>
+      <div class="scope-screen" id="scope-screen">
+        <canvas id="scope-canvas" dir="ltr" aria-label="תצוגת גל הקול מהמיקרופון"></canvas>
+        <div class="scope-readout">
+          <span class="scope-chip" id="scope-peak">— Hz</span>
+          <span class="scope-chip freeze" id="scope-frozen" hidden>מוקפא</span>
+        </div>
+        <div class="scope-msg" id="scope-msg">לחצו על "הפעלת מיקרופון" ודברו</div>
+      </div>
+      <p class="scope-hint">קיצורי מקשים: <kbd>רווח</kbd> הקפאה &middot; <kbd>T</kbd> זמן &middot; <kbd>F</kbd> תדר &middot; <kbd>Enter</kbd> או לחיצה כפולה על המסך: מסך מלא &middot; <kbd>Esc</kbd> יציאה</p>
+    </div>
+  </section>
+
   <div class="callout">
     <span class="eyebrow">בחזרה למשימה</span>
     <p>בדיוק את שתי התכונות האלה נחפש בתוך התשדיר שקלטנו מהחלל &ndash; בעזרת האפליקציה "לראות את הקול"</p>
@@ -347,6 +459,414 @@
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape') closeQrModal();
   });
+</script>
+
+<script>
+/* ── Live microphone scope: time domain (oscilloscope) + frequency domain ── */
+(function(){
+  var FFT_SIZE = 8192;
+  var F_MIN = 50, F_MAX = 5000;          // frequency view range (Hz, log axis)
+  var DB_FLOOR = -100, DB_TOP = -20;     // frequency view dB range
+
+  var el = function(id){ return document.getElementById(id); };
+  var scope = el('scope'), screen = el('scope-screen'), canvas = el('scope-canvas');
+  var ctx = canvas.getContext('2d');
+  var micBtn = el('scope-mic'), timeBtn = el('scope-mode-time'), freqBtn = el('scope-mode-freq');
+  var freezeBtn = el('scope-freeze'), toneBtn = el('scope-tone'), fullBtn = el('scope-full');
+  var gainIn = el('scope-gain'), spanIn = el('scope-span'), spanWrap = el('scope-span-wrap');
+  var msg = el('scope-msg'), peakChip = el('scope-peak'), frozenChip = el('scope-frozen');
+
+  var audioCtx = null, analyser = null, stream = null, micSource = null;
+  var osc = null, oscGain = null;
+  var timeData = null, freqData = null, smoothFreq = null;
+  var mode = 'time', frozen = false, running = false;
+  var dpr = 1, W = 0, H = 0;
+
+  // ── Audio ────────────────────────────────────────────────────────────
+  function ensureAudio(){
+    if (audioCtx) return;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = FFT_SIZE;
+    analyser.smoothingTimeConstant = 0.5;
+    analyser.minDecibels = DB_FLOOR;
+    analyser.maxDecibels = DB_TOP;
+    timeData = new Float32Array(analyser.fftSize);
+    freqData = new Float32Array(analyser.frequencyBinCount);
+    smoothFreq = new Float32Array(analyser.frequencyBinCount).fill(DB_FLOOR);
+  }
+
+  function showMsg(text, isErr){
+    msg.textContent = text || '';
+    msg.hidden = !text;
+    msg.classList.toggle('err', !!isErr);
+  }
+
+  async function startMic(){
+    if (!window.isSecureContext){
+      showMsg('המיקרופון עובד רק בכתובת מאובטחת (https) או ב-localhost', true); return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showMsg('הדפדפן הזה לא תומך במיקרופון. נסו Chrome, Edge או Safari עדכניים', true); return;
+    }
+    try{
+      ensureAudio();
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false },
+        video:false
+      });
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      micSource = audioCtx.createMediaStreamSource(stream);
+      micSource.connect(analyser);   // NOT connected to speakers: no feedback
+      running = true;
+      setFrozen(false);
+      showMsg('');
+      micBtn.textContent = '⏹ עצירת מיקרופון';
+      micBtn.classList.add('on');
+    }catch(err){
+      var denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+      showMsg(denied ? 'הגישה למיקרופון נחסמה. אשרו גישה בסרגל הכתובת ונסו שוב'
+                     : 'לא נמצא מיקרופון. בדקו שהוא מחובר ונסו שוב', true);
+      stopMic();
+    }
+  }
+
+  function stopMic(){
+    if (stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+    if (micSource){ try{ micSource.disconnect(); }catch(e){} micSource = null; }
+    running = !!osc;
+    micBtn.textContent = '🎤 הפעלת מיקרופון';
+    micBtn.classList.remove('on');
+    if (!running) showMsg('לחצו על "הפעלת מיקרופון" ודברו');
+  }
+
+  // A pure 440 Hz sine: played on the speakers AND fed straight into the
+  // analyser, so the clean single-frequency shape shows even without a mic.
+  function toggleTone(){
+    if (osc){
+      oscGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
+      var o = osc; osc = null;
+      setTimeout(function(){ try{ o.stop(); o.disconnect(); }catch(e){} }, 150);
+      toneBtn.classList.remove('on'); toneBtn.setAttribute('aria-pressed','false');
+      running = !!stream;
+      if (!running) showMsg('לחצו על "הפעלת מיקרופון" ודברו');
+      return;
+    }
+    ensureAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = 440;
+    oscGain = audioCtx.createGain();
+    oscGain.gain.value = 0;
+    oscGain.gain.setTargetAtTime(0.25, audioCtx.currentTime, 0.02);
+    osc.connect(oscGain);
+    oscGain.connect(audioCtx.destination);
+    oscGain.connect(analyser);
+    osc.start();
+    running = true;
+    setFrozen(false);
+    showMsg('');
+    toneBtn.classList.add('on'); toneBtn.setAttribute('aria-pressed','true');
+  }
+
+  // ── UI state ─────────────────────────────────────────────────────────
+  function setMode(m){
+    mode = m;
+    timeBtn.setAttribute('aria-pressed', m === 'time');
+    freqBtn.setAttribute('aria-pressed', m === 'freq');
+    spanWrap.style.display = m === 'time' ? '' : 'none';
+    if (frozen) draw(); // redraw the held frame in the new view
+  }
+  function setFrozen(f){
+    frozen = f;
+    freezeBtn.classList.toggle('on', f);
+    freezeBtn.setAttribute('aria-pressed', f);
+    freezeBtn.textContent = f ? '▶ המשך' : '⏸ הקפאה';
+    frozenChip.hidden = !f;
+  }
+
+  function isFull(){ return scope.classList.contains('is-full'); }
+  function setFull(on){
+    scope.classList.toggle('is-full', on);
+    document.body.classList.toggle('scope-lock', on);
+    fullBtn.textContent = on ? '✕ יציאה ממסך מלא' : '⛶ מסך מלא';
+    resize();
+  }
+  function exitFull(){
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl){ try{ var p = (document.exitFullscreen || document.webkitExitFullscreen).call(document); if (p && p.catch) p.catch(function(){}); }catch(e){} }
+    setFull(false);
+  }
+  function toggleFull(){
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (fsEl || isFull()){ exitFull(); return; }
+    var req = scope.requestFullscreen || scope.webkitRequestFullscreen;
+    setFull(true); // CSS fallback works even where the Fullscreen API doesn't (iPhone)
+    if (req){ try{ var p = req.call(scope); if (p && p.catch) p.catch(function(){}); }catch(e){} }
+  }
+  function onFsChange(){
+    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+    if (!fsEl && isFull()) setFull(false);
+  }
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+
+  micBtn.addEventListener('click', function(){ stream ? stopMic() : startMic(); });
+  timeBtn.addEventListener('click', function(){ setMode('time'); });
+  freqBtn.addEventListener('click', function(){ setMode('freq'); });
+  freezeBtn.addEventListener('click', function(){ setFrozen(!frozen); });
+  toneBtn.addEventListener('click', toggleTone);
+  fullBtn.addEventListener('click', toggleFull);
+  screen.addEventListener('dblclick', toggleFull);
+  gainIn.addEventListener('input', function(){ if (frozen) draw(); });
+  spanIn.addEventListener('input', function(){ if (frozen) draw(); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target, tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    var k = e.key;
+    if (k === ' ' || k === 'Spacebar'){
+      if (tag === 'BUTTON') return; // let Space activate the focused button
+      e.preventDefault(); setFrozen(!frozen);
+    } else if (k === 't' || k === 'T' || k === 'א'){ setMode('time'); }
+    else if (k === 'f' || k === 'F' || k === 'כ'){ setMode('freq'); }
+    else if (k === 'Enter' && tag !== 'BUTTON'){ toggleFull(); }
+    else if (k === 'Escape' && isFull()){ exitFull(); }
+  });
+
+  // ── Canvas ───────────────────────────────────────────────────────────
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(1, Math.round(screen.clientWidth * dpr));
+    H = Math.max(1, Math.round(screen.clientHeight * dpr));
+    canvas.width = W; canvas.height = H;
+    draw();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(screen);
+  else window.addEventListener('resize', resize);
+
+  function px(n){ return n * dpr * (isFull() ? 1.5 : 1); }
+  function font(size){ return '700 ' + px(size) + 'px Rubik, Heebo, sans-serif'; }
+
+  function clear(){
+    ctx.fillStyle = '#03100A';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawTimeGrid(spanMs){
+    var padB = px(26);
+    ctx.lineWidth = Math.max(1, dpr);
+    ctx.strokeStyle = 'rgba(61,255,176,0.10)';
+    var divs = 10, i;
+    for (i = 1; i < divs; i++){
+      var x = Math.round(W * i / divs) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - padB); ctx.stroke();
+    }
+    for (i = 1; i < 8; i++){
+      var y = Math.round((H - padB) * i / 8) + 0.5;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(61,255,176,0.30)';
+    ctx.beginPath(); ctx.moveTo(0, (H - padB) / 2); ctx.lineTo(W, (H - padB) / 2); ctx.stroke();
+
+    ctx.fillStyle = 'rgba(185,245,220,0.75)';
+    ctx.font = font(12);
+    ctx.textBaseline = 'bottom';
+    for (i = 0; i <= divs; i += 2){
+      var ms = spanMs * i / divs;
+      var label = (ms % 1 === 0 ? ms.toFixed(0) : ms.toFixed(1)) + ' ms';
+      ctx.textAlign = i === 0 ? 'left' : (i === divs ? 'right' : 'center');
+      ctx.fillText(label, W * i / divs + (i === 0 ? px(6) : i === divs ? -px(6) : 0), H - px(4));
+    }
+    return padB;
+  }
+
+  function drawTime(){
+    var spanMs = +spanIn.value;
+    var padB = drawTimeGrid(spanMs);
+    var plotH = H - padB, mid = plotH / 2;
+    var sr = audioCtx ? audioCtx.sampleRate : 48000;
+    var n = Math.min(Math.round(sr * spanMs / 1000), timeData ? timeData.length : 0);
+    if (!running && !frozen || !n){
+      ctx.strokeStyle = 'rgba(61,255,176,0.6)'; ctx.lineWidth = px(2);
+      ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(W, mid); ctx.stroke();
+      return;
+    }
+    // Rising-edge trigger (with a little hysteresis) so the wave stands still
+    var start = 0, maxStart = timeData.length - n, armed = false;
+    for (var i = 1; i < maxStart; i++){
+      if (timeData[i] < -0.01) armed = true;
+      if (armed && timeData[i - 1] <= 0 && timeData[i] > 0){ start = i; break; }
+    }
+    var gain = +gainIn.value;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    // glow pass + sharp pass
+    var passes = [[px(9), 'rgba(61,255,176,0.18)'], [px(3), '#3DFFB0']];
+    for (var p = 0; p < passes.length; p++){
+      ctx.lineWidth = passes[p][0]; ctx.strokeStyle = passes[p][1];
+      ctx.beginPath();
+      var step = Math.max(1, Math.floor(n / W)); // ~1 sample per pixel
+      for (var j = 0; j < n; j += step){
+        var v = timeData[start + j] * gain;
+        if (v > 1) v = 1; else if (v < -1) v = -1;
+        var x = j / (n - 1) * W, y = mid - v * mid * 0.92;
+        if (j === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function fToX(f){ return Math.log(f / F_MIN) / Math.log(F_MAX / F_MIN) * W; }
+
+  function drawFreqGrid(){
+    var padB = px(26);
+    ctx.lineWidth = Math.max(1, dpr);
+    var narrow = W / dpr < 560;
+    var ticks = narrow ? [50,100,200,500,1000,2000,5000] : [50,100,200,300,500,1000,2000,3000,5000];
+    var minor = [60,70,80,90,150,400,600,700,800,900,1500,4000];
+    ctx.strokeStyle = 'rgba(61,255,176,0.05)';
+    minor.forEach(function(f){ var x = Math.round(fToX(f)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - padB); ctx.stroke(); });
+    ctx.strokeStyle = 'rgba(61,255,176,0.13)';
+    ticks.forEach(function(f){ var x = Math.round(fToX(f)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H - padB); ctx.stroke(); });
+    for (var i = 1; i < 6; i++){
+      var y = Math.round((H - padB) * i / 6) + 0.5;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(185,245,220,0.75)';
+    ctx.font = font(12); ctx.textBaseline = 'bottom';
+    ticks.forEach(function(f, idx){
+      var label = f >= 1000 ? (f / 1000) + 'k' : String(f);
+      var x = fToX(f);
+      ctx.textAlign = idx === 0 ? 'left' : (idx === ticks.length - 1 ? 'right' : 'center');
+      ctx.fillText(label + (idx === ticks.length - 1 ? ' Hz' : ''), x + (idx === 0 ? px(6) : idx === ticks.length - 1 ? -px(6) : 0), H - px(4));
+    });
+    return padB;
+  }
+
+  function drawFreq(){
+    var padB = drawFreqGrid();
+    var plotH = H - padB;
+    if (!running && !frozen || !smoothFreq){
+      ctx.strokeStyle = 'rgba(255,201,60,0.6)'; ctx.lineWidth = px(2);
+      ctx.beginPath(); ctx.moveTo(0, plotH - px(2)); ctx.lineTo(W, plotH - px(2)); ctx.stroke();
+      return;
+    }
+    var sr = audioCtx.sampleRate, binHz = sr / FFT_SIZE;
+    var gainDb = 20 * Math.log10(+gainIn.value) - 12; // gain 4 ≈ neutral
+    var level = function(db){
+      var t = (db + gainDb - DB_FLOOR) / (DB_TOP - DB_FLOOR);
+      return t < 0 ? 0 : t > 1 ? 1 : t;
+    };
+    // One point per pixel column: max of bins falling in that column
+    var cols = Math.max(2, Math.floor(W / Math.max(1, dpr)));
+    var ys = new Float32Array(cols);
+    for (var c = 0; c < cols; c++){
+      var f0 = F_MIN * Math.pow(F_MAX / F_MIN, c / cols);
+      var f1 = F_MIN * Math.pow(F_MAX / F_MIN, (c + 1) / cols);
+      var b0 = Math.floor(f0 / binHz), b1 = Math.max(b0, Math.floor(f1 / binHz));
+      var m = DB_FLOOR - 50;
+      for (var b = b0; b <= b1 && b < smoothFreq.length; b++) if (smoothFreq[b] > m) m = smoothFreq[b];
+      // interpolate when bins are wider than pixels (low frequencies)
+      if (b1 === b0 && b0 + 1 < smoothFreq.length){
+        var fr = (f0 / binHz) - b0;
+        m = smoothFreq[b0] * (1 - fr) + smoothFreq[b0 + 1] * fr;
+      }
+      ys[c] = plotH - level(m) * plotH * 0.95;
+    }
+    var grad = ctx.createLinearGradient(0, 0, 0, plotH);
+    grad.addColorStop(0, 'rgba(255,107,91,0.85)');
+    grad.addColorStop(0.45, 'rgba(255,201,60,0.65)');
+    grad.addColorStop(1, 'rgba(31,182,166,0.15)');
+    ctx.beginPath(); ctx.moveTo(0, plotH);
+    for (c = 0; c < cols; c++) ctx.lineTo(c / (cols - 1) * W, ys[c]);
+    ctx.lineTo(W, plotH); ctx.closePath();
+    ctx.fillStyle = grad; ctx.fill();
+    ctx.beginPath();
+    for (c = 0; c < cols; c++){ var x = c / (cols - 1) * W; if (c === 0) ctx.moveTo(x, ys[c]); else ctx.lineTo(x, ys[c]); }
+    ctx.strokeStyle = '#FFC93C'; ctx.lineWidth = px(2.5); ctx.lineJoin = 'round'; ctx.stroke();
+
+    // Mark the strongest separate peaks so "many frequencies" is visible
+    var peaks = findPeaks(binHz, 6);
+    ctx.font = font(13); ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    peaks.forEach(function(pk, idx){
+      var x = fToX(pk.f), y = plotH - level(pk.db) * plotH * 0.95;
+      ctx.fillStyle = idx === 0 ? '#FF6B5B' : '#FFFFFF';
+      ctx.beginPath(); ctx.arc(x, y, px(idx === 0 ? 6 : 4.5), 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      ctx.fillText(Math.round(pk.f) + '', x, y - px(8));
+    });
+  }
+
+  // Local maxima above the noise, at least ~1/6 octave apart
+  function findPeaks(binHz, maxCount){
+    var lo = Math.max(2, Math.floor(F_MIN / binHz)), hi = Math.min(smoothFreq.length - 2, Math.ceil(F_MAX / binHz));
+    var top = DB_FLOOR, i;
+    for (i = lo; i <= hi; i++) if (smoothFreq[i] > top) top = smoothFreq[i];
+    var thresh = Math.max(top - 30, DB_FLOOR + 22);
+    var cand = [];
+    for (i = lo; i <= hi; i++){
+      var v = smoothFreq[i];
+      if (v > thresh && v >= smoothFreq[i - 1] && v >= smoothFreq[i + 1] && v >= smoothFreq[i - 2] && v >= smoothFreq[i + 2]){
+        // parabolic interpolation for a more accurate Hz label
+        var a = smoothFreq[i - 1], b = v, c = smoothFreq[i + 1];
+        var d = (a - 2 * b + c) === 0 ? 0 : 0.5 * (a - c) / (a - 2 * b + c);
+        cand.push({ f:(i + d) * binHz, db:v });
+      }
+    }
+    cand.sort(function(x, y){ return y.db - x.db; });
+    var out = [];
+    for (i = 0; i < cand.length && out.length < maxCount; i++){
+      var ok = true;
+      for (var j = 0; j < out.length; j++){
+        if (Math.abs(Math.log2(cand[i].f / out[j].f)) < 1 / 6){ ok = false; break; }
+      }
+      if (ok) out.push(cand[i]);
+    }
+    return out;
+  }
+
+  function updateReadout(){
+    if (!running && !frozen){ peakChip.textContent = '— Hz'; return; }
+    var binHz = audioCtx.sampleRate / FFT_SIZE;
+    var pk = findPeaks(binHz, 1)[0];
+    peakChip.textContent = !pk ? 'שקט…' : 'תדר חזק ביותר: ' + Math.round(pk.f) + ' Hz';
+  }
+
+  function draw(){
+    if (!W || !H) return;
+    clear();
+    if (mode === 'time') drawTime(); else drawFreq();
+  }
+
+  function loop(){
+    if (running && !frozen && analyser){
+      analyser.getFloatTimeDomainData(timeData);
+      analyser.getFloatFrequencyData(freqData);
+      for (var i = 0; i < freqData.length; i++){
+        var v = isFinite(freqData[i]) ? freqData[i] : DB_FLOOR - 50;
+        // fast attack, slower release: easier to read on a big screen
+        smoothFreq[i] = v > smoothFreq[i] ? v : smoothFreq[i] * 0.8 + v * 0.2;
+      }
+      updateReadout();
+      draw();
+    }
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('pagehide', function(){ stopMic(); if (osc) toggleTone(); });
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden && audioCtx && audioCtx.state === 'running' && !osc) audioCtx.suspend();
+    else if (!document.hidden && audioCtx && audioCtx.state === 'suspended' && running) audioCtx.resume();
+  });
+
+  setMode('time');
+  resize();
+  requestAnimationFrame(loop);
+})();
 </script>
 
 <footer>לראות את הקול &middot; חט"ב &middot; דף עזר להסבר על גלי קול</footer>
